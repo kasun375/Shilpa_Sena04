@@ -1,0 +1,21 @@
+# Ignore build artifacts in App Files
+App Files/*.apk
+App Files/*.aab
+
+# Ignore zip archives in webapp
+Shilpa_Sena/webapp/webapp.zip
+
+# Flutter build outputs and local tools
+Shilpa_Sena/.dart_tool/
+Shilpa_Sena/.flutter-plugins-dependencies
+Shilpa_Sena/.pub-cache/
+Shilpa_Sena/.pub/
+Shilpa_Sena/build/
+
+# Local IDE and System files
+.idea/
+.vscode/
+*.log
+*.class
+.DS_Store
+Thumbs.db

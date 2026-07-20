@@ -1,0 +1,31 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "exim-graphics-lms",
+          "appId": "1:54375527170:android:fe0a88d846e7889d0c881b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "exim-graphics-lms",
+          "configurations": {
+            "android": "1:54375527170:android:fe0a88d846e7889d0c881b",
+            "ios": "1:54375527170:ios:3e19b2ea767be68f0c881b",
+            "macos": "1:54375527170:ios:e7786be1814861e00c881b",
+            "web": "1:54375527170:web:80b8dff8c3a1e01c0c881b",
+            "windows": "1:54375527170:web:85d8bab2738c57870c881b"
+          }
+        }
+      }
+    }
+  }
+}

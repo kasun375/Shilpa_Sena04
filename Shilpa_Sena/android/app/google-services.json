@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "54375527170",
+    "project_id": "exim-graphics-lms",
+    "storage_bucket": "exim-graphics-lms.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:54375527170:android:fe0a88d846e7889d0c881b",
+        "android_client_info": {
+          "package_name": "com.shilpasena"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "54375527170-8nloj9q8f67gdi1fqtefqk09l8llhilo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shilpasena",
+            "certificate_hash": "9dadb0956048a3fee726d80853aaf714422baf33"
+          }
+        },
+        {
+          "client_id": "54375527170-oj9oqm8fn4m4pnf7a8ouc8jo5cmdqjje.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFPRSNWTpkmZDNPkg2DM0zi6IOGnpWITU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "54375527170-oj9oqm8fn4m4pnf7a8ouc8jo5cmdqjje.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "54375527170-g6k8r5cgt41tdbfi7fofo022u5lk0aia.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.shilpasena"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Shilpa Sena LMS - Unlock your creative potential with premium courses and study materials.">
+  <meta name="theme-color" content="#001B3D">
+  <title>Shilpa Sena | Learning Management System</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Grand+Hotel&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- ==================== TOP NAVIGATION BAR ==================== -->
+  <nav id="top-nav">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <button id="hamburger-btn" class="hamburger" aria-label="Toggle menu">
+          <span class="material-icons">menu</span>
+        </button>
+        <img src="assets/images/app_icon.png" alt="Logo" class="brand-logo-img">
+        <span class="brand-name">Shilpa Sena</span>
+      </div>
+
+      <ul id="nav-links" class="nav-links">
+        <li><a href="#home" data-page="home" class="nav-link active">Home</a></li>
+        <li><a href="#my-courses" data-page="my-courses" class="nav-link">My Courses</a></li>
+        <li><a href="#courses" data-page="courses" class="nav-link">Courses</a></li>
+        <li><a href="#recordings" data-page="recordings" class="nav-link">Recordings</a></li>
+        <li><a href="#studypacks" data-page="studypacks" class="nav-link">Study Packs</a></li>
+        <li><a href="#privacy" data-page="privacy" class="nav-link">Privacy</a></li>
+        <li><a href="#contact" data-page="contact" class="nav-link">Contact</a></li>
+        <li id="admin-nav-item" style="display:none;"><a href="#admin" data-page="admin"
+            class="nav-link admin-link">Admin</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button id="notifications-btn" class="icon-btn" title="Notifications"
+          onclick="window.location.hash='#notifications'">
+          <span class="material-icons-outlined">notifications</span>
+          <span id="notif-badge" class="notif-badge" style="display:none;">0</span>
+        </button>
+        <div id="user-menu" class="user-menu" style="display:none;">
+          <div id="user-avatar" class="user-avatar">
+            <span class="material-icons">person</span>
+          </div>
+          <button id="logout-btn" class="btn-logout-nav">Logout</button>
+        </div>
+        <button id="login-nav-btn" class="btn-login-nav" onclick="showAuthModal('login')">Login</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main id="app-content">
+    <!-- Pages rendered here by JavaScript -->
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer id="app-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="assets/images/app_icon.png" alt="Shilpa Sena Logo">
+          <span>Shilpa Sena</span>
+        </div>
+        <p class="footer-desc">Unlock your creative potential with premium courses and study materials. Learn from industry professionals anywhere, anytime.</p>
+        <div class="footer-socials">
+          <a href="https://www.facebook.com/eximgraphics" target="_blank" class="social-icon facebook" aria-label="Facebook">
+            <i class="material-icons">facebook</i>
+          </a>
+          <a href="https://www.instagram.com/eximgraphics" target="_blank" class="social-icon instagram" aria-label="Instagram">
+            <i class="material-icons">camera_alt</i>
+          </a>
+          <a href="https://www.youtube.com/channel/@eximgraphics" target="_blank" class="social-icon youtube" aria-label="YouTube">
+            <i class="material-icons">play_circle_filled</i>
+          </a>
+        </div>
+      </div>
+      
+      <div class="footer-links">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#courses">Courses</a></li>
+          <li><a href="#recordings">Recordings</a></li>
+          <li><a href="#studypacks">Study Packs</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#contact">Contact Support</a></li>
+          <li><a href="#privacy">Privacy Policy</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-contact">
+        <h4>Contact Info</h4>
+        <ul>
+          <li>
+            <span class="material-icons-outlined">phone</span>
+            <a href="tel:0760891262">076 089 12 62</a>
+          </li>
+          <li>
+            <span class="material-icons-outlined">chat</span>
+            <a href="https://wa.me/94766341872" target="_blank">076 634 18 72</a>
+          </li>
+          <li>
+            <span class="material-icons-outlined">email</span>
+            <a href="mailto:kasunjayaweera80@gmail.com">kasunjayaweera80@gmail.com</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Shilpa Sena LMS. All Rights Reserved. Crafted for Visual Excellence.</p>
+    </div>
+  </footer>
+
+  <!-- ==================== AUTH MODAL ==================== -->
+  <div id="auth-overlay" class="auth-overlay" style="display:none;">
+    <div class="auth-card">
+      <button class="auth-close" onclick="hideAuthModal()">&times;</button>
+      <div class="auth-brand">
+        <span class="brand-name-auth">Shilpa Sena</span>
+        <p id="auth-subtitle" class="auth-subtitle">Login to continue your learning journey</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form" onsubmit="return handleLogin(event)">
+        <div class="input-group">
+          <span class="material-icons-outlined input-icon">email</span>
+          <input type="email" id="login-email" placeholder="Email" required autocomplete="email">
+        </div>
+        <div class="input-group">
+          <span class="material-icons-outlined input-icon">lock</span>
+          <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-primary btn-full">LOGIN</button>
+        <button type="button" class="btn-google" onclick="handleGoogleSignIn()">
+          <svg width="20" height="20" viewBox="0 0 48 48">
+            <path fill="#EA4335"
+              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+            <path fill="#4285F4"
+              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+            <path fill="#FBBC05"
+              d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+            <path fill="#34A853"
+              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+          </svg>
+          Continue with Google
+        </button>
+        <p class="auth-switch">Don't have an account? <a href="#" onclick="switchAuthMode('signup'); return false;">Sign
+            Up</a></p>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signup-form" class="auth-form" style="display:none;" onsubmit="return handleSignup(event)">
+        <div class="input-group">
+          <span class="material-icons-outlined input-icon">person</span>
+          <input type="text" id="signup-name" placeholder="Full Name" required autocomplete="name">
+        </div>
+        <div class="input-group">
+          <span class="material-icons-outlined input-icon">email</span>
+          <input type="email" id="signup-email" placeholder="Email" required autocomplete="email">
+        </div>
+        <div class="input-group">
+          <span class="material-icons-outlined input-icon">lock</span>
+          <input type="password" id="signup-password" placeholder="Password (min 6 chars)" required minlength="6"
+            autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn-primary btn-full">CREATE ACCOUNT</button>
+        <button type="button" class="btn-google" onclick="handleGoogleSignIn()">
+          <svg width="20" height="20" viewBox="0 0 48 48">
+            <path fill="#EA4335"
+              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+            <path fill="#4285F4"
+              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+            <path fill="#FBBC05"
+              d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+            <path fill="#34A853"
+              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+          </svg>
+          Continue with Google
+        </button>
+        <p class="auth-switch">Already have an account? <a href="#"
+            onclick="switchAuthMode('login'); return false;">Login</a></p>
+      </form>
+
+      <div id="auth-loading" class="auth-loading" style="display:none;">
+        <div class="spinner"></div>
+        <p>Authenticating...</p>
+      </div>
+      <p id="auth-error" class="auth-error" style="display:none;"></p>
+    </div>
+  </div>
+
+  <!-- ==================== SECURE CHECKOUT MODAL ==================== -->
+  <div id="payment-overlay" class="auth-overlay" style="display:none;">
+    <div class="auth-card payment-card">
+      <button class="auth-close" onclick="hidePaymentModal()">&times;</button>
+      
+      <div class="payment-header">
+        <h3 class="payment-title">Secure Checkout</h3>
+        <p id="payment-course-title" class="payment-course-title">Course Name</p>
+        <p id="payment-course-price" class="payment-course-price">$0.00</p>
+      </div>
+
+      <!-- Payment Method Selector -->
+      <div class="payment-methods-selector">
+        <label class="section-label">PAYMENT METHOD</label>
+        <div class="payment-methods-row">
+          <button type="button" class="pay-method-btn active" data-method="card" onclick="selectPaymentMethod('card')">
+            <span class="material-icons-outlined">credit_card</span>
+            <span>Card</span>
+          </button>
+          <button type="button" class="pay-method-btn" data-method="google_pay" onclick="selectPaymentMethod('google_pay')">
+            <svg class="pay-method-icon" viewBox="0 0 24 24" width="16" height="16">
+              <path fill="#4285F4" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.467 0-6.277-2.81-6.277-6.277s2.81-6.277 6.277-6.277c1.55 0 2.96.562 4.057 1.493l3.078-3.078C18.995 1.956 15.845 1 12.24 1 6.033 1 1 6.033 1 12.24s5.033 11.24 11.24 11.24c5.877 0 10.87-4.223 11.66-9.815v-3.38H12.24z"/>
+            </svg>
+            <span>GPay</span>
+          </button>
+          <button type="button" class="pay-method-btn" data-method="apple_pay" onclick="selectPaymentMethod('apple_pay')">
+            <span class="material-icons">apple</span>
+            <span>Apple</span>
+          </button>
+          <button type="button" class="pay-method-btn" data-method="paypal" onclick="selectPaymentMethod('paypal')">
+            <span class="paypal-text">PP</span>
+            <span>PayPal</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Payment Error Banner -->
+      <div id="payment-error" class="auth-error" style="display:none; margin-top: 16px;"></div>
+
+      <div id="payment-main-content">
+        <!-- Secure Badge -->
+        <div class="secure-badge">
+          <span class="material-icons-outlined" style="font-size:14px;">lock</span>
+          <span>Stripe Secure 256-Bit SSL Encryption</span>
+        </div>
+
+        <!-- Card Payment Form -->
+        <form id="payment-card-form" class="auth-form" onsubmit="handlePaymentSubmit(event)" style="margin-top: 16px;">
+          <div class="input-group">
+            <span class="material-icons-outlined input-icon">person_outline</span>
+            <input type="text" id="card-holder" placeholder="Cardholder Name" required autocomplete="cc-name">
+          </div>
+          <div class="input-group">
+            <span class="material-icons-outlined input-icon">credit_card</span>
+            <input type="text" id="card-number" placeholder="0000 0000 0000 0000" required autocomplete="cc-number">
+          </div>
+          <div class="input-row" style="display: flex; gap: 12px;">
+            <div class="input-group" style="flex: 1;">
+              <span class="material-icons-outlined input-icon">calendar_today</span>
+              <input type="text" id="card-expiry" placeholder="MM/YY" required autocomplete="cc-exp">
+            </div>
+            <div class="input-group" style="flex: 1;">
+              <span class="material-icons-outlined input-icon">lock_open</span>
+              <input type="password" id="card-cvc" placeholder="123" required autocomplete="cc-csc">
+            </div>
+          </div>
+          <button type="submit" id="btn-pay-now" class="btn-primary btn-full" style="margin-top: 8px;">Pay $0.00 Now</button>
+        </form>
+
+        <!-- Simulated Google Pay -->
+        <div id="payment-gpay-view" class="simulated-payment-view" style="display:none; margin-top: 16px;">
+          <div class="simulated-payment-info">
+            <span class="material-icons-outlined" style="color:#4285F4; font-size: 24px;">security</span>
+            <strong>Google Pay Active</strong>
+            <p>Use cards stored in your Google account to pay instantly.</p>
+          </div>
+          <button type="button" class="btn-simulated-pay gpay-btn" onclick="handleSimulatedPayment('google_pay')">
+            Pay with <span style="font-weight:700;">Google Pay</span>
+          </button>
+        </div>
+
+        <!-- Simulated Apple Pay -->
+        <div id="payment-applepay-view" class="simulated-payment-view" style="display:none; margin-top: 16px;">
+          <div class="simulated-payment-info">
+            <span class="material-icons" style="font-size: 24px;">apple</span>
+            <strong>Apple Pay Active</strong>
+            <p>Use cards stored in your Apple account to pay instantly.</p>
+          </div>
+          <button type="button" class="btn-simulated-pay applepay-btn" onclick="handleSimulatedPayment('apple_pay')">
+            <span class="material-icons" style="font-size:16px;">apple</span> Pay
+          </button>
+        </div>
+
+        <!-- Simulated PayPal -->
+        <div id="payment-paypal-view" class="simulated-payment-view" style="display:none; margin-top: 16px;">
+          <div class="simulated-payment-info">
+            <span class="paypal-text" style="color:#003087; font-size:18px; font-weight: bold; font-style: italic;">PP</span>
+            <strong>PayPal Checkouts</strong>
+            <p>Log in to your PayPal account to complete the purchase.</p>
+          </div>
+          <button type="button" class="btn-simulated-pay paypal-btn" onclick="handleSimulatedPayment('paypal')">
+            <span style="font-style:italic; font-weight:700; color:#003087;">Pay</span><span style="font-style:italic; font-weight:700; color:#0079C1;">Pal</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Processing state -->
+      <div id="payment-processing" class="auth-loading" style="display:none; padding: 40px 0;">
+        <div class="spinner"></div>
+        <strong style="color: #fff; font-size: 16px;">Processing Secure Payment...</strong>
+        <p style="color: rgba(255,255,255,0.6); font-size: 12px; text-align: center; max-width: 280px; margin-top: 4px;">
+          Communicating with secure servers. Please do not close.
+        </p>
+      </div>
+
+      <!-- Success state -->
+      <div id="payment-success" class="payment-success-view" style="display:none; text-align: center; padding: 40px 0;">
+        <div class="success-checkmark-circle">
+          <span class="material-icons">check</span>
+        </div>
+        <h3 style="font-size: 20px; font-weight: 700; margin-top: 20px;">Payment Successful!</h3>
+        <p style="color: rgba(255,255,255,0.7); font-size: 13px; max-width: 280px; margin: 8px auto 0; line-height: 1.5;">
+          Your enrollment is now complete and active. Redirecting you...
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST ==================== -->
+  <div id="toast" class="toast" style="display:none;"></div>
+
+  <!-- ==================== FIREBASE SDK (Compat for simplicity) ==================== -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+</body>
+
+</html>
