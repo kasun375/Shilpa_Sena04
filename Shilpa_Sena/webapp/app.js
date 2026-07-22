@@ -2247,8 +2247,7 @@ window.showPaymentModal = function(courseId) {
   document.getElementById('card-expiry').value = '';
   document.getElementById('card-cvc').value = '';
   
-  // Reset payment method tabs
-  selectPaymentMethod('card');
+  paymentMethod = 'card';
   
   // Open overlay
   document.getElementById('payment-overlay').style.display = 'flex';
@@ -2259,27 +2258,6 @@ window.showPaymentModal = function(courseId) {
 
 window.hidePaymentModal = function() {
   document.getElementById('payment-overlay').style.display = 'none';
-};
-
-// Select Payment Method tab
-window.selectPaymentMethod = function(method) {
-  paymentMethod = method;
-  
-  // Update tabs active state
-  document.querySelectorAll('.pay-method-btn').forEach(btn => {
-    btn.classList.remove('active');
-    if (btn.getAttribute('data-method') === method) {
-      btn.classList.add('active');
-    }
-  });
-  
-  // Toggle views
-  document.getElementById('payment-card-form').style.display = (method === 'card') ? 'block' : 'none';
-  document.getElementById('payment-gpay-view').style.display = (method === 'google_pay') ? 'block' : 'none';
-  document.getElementById('payment-applepay-view').style.display = (method === 'apple_pay') ? 'block' : 'none';
-  document.getElementById('payment-paypal-view').style.display = (method === 'paypal') ? 'block' : 'none';
-  
-  document.getElementById('payment-error').style.display = 'none';
 };
 
 // Format credit card inputs
@@ -2545,25 +2523,7 @@ window.handlePaymentSubmit = async function(e) {
   }
 };
 
-// Handle GPay, Apple Pay, PayPal checkouts
-window.handleSimulatedPayment = async function(method) {
-  document.getElementById('payment-main-content').style.display = 'none';
-  document.getElementById('payment-processing').style.display = 'flex';
-  document.getElementById('payment-error').style.display = 'none';
-  
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  const simulatedId = method + '_sim_' + Date.now();
-  try {
-    await enrollUserImmediately(selectedPaymentCourseId, selectedPaymentCourseTitle, simulatedId, method);
-    showPaymentSuccessView();
-  } catch (err) {
-    document.getElementById('payment-processing').style.display = 'none';
-    document.getElementById('payment-main-content').style.display = 'block';
-    showPaymentError('Simulation succeeded but enrollment failed: ' + err.message);
-  }
-};
+
 
 function showPaymentError(msg) {
   const errorEl = document.getElementById('payment-error');

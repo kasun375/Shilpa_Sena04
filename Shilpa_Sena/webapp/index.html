@@ -222,31 +222,6 @@
         <p id="payment-course-price" class="payment-course-price">$0.00</p>
       </div>
 
-      <!-- Payment Method Selector -->
-      <div class="payment-methods-selector">
-        <label class="section-label">PAYMENT METHOD</label>
-        <div class="payment-methods-row">
-          <button type="button" class="pay-method-btn active" data-method="card" onclick="selectPaymentMethod('card')">
-            <span class="material-icons-outlined">credit_card</span>
-            <span>Card</span>
-          </button>
-          <button type="button" class="pay-method-btn" data-method="google_pay" onclick="selectPaymentMethod('google_pay')">
-            <svg class="pay-method-icon" viewBox="0 0 24 24" width="16" height="16">
-              <path fill="#4285F4" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.467 0-6.277-2.81-6.277-6.277s2.81-6.277 6.277-6.277c1.55 0 2.96.562 4.057 1.493l3.078-3.078C18.995 1.956 15.845 1 12.24 1 6.033 1 1 6.033 1 12.24s5.033 11.24 11.24 11.24c5.877 0 10.87-4.223 11.66-9.815v-3.38H12.24z"/>
-            </svg>
-            <span>GPay</span>
-          </button>
-          <button type="button" class="pay-method-btn" data-method="apple_pay" onclick="selectPaymentMethod('apple_pay')">
-            <span class="material-icons">apple</span>
-            <span>Apple</span>
-          </button>
-          <button type="button" class="pay-method-btn" data-method="paypal" onclick="selectPaymentMethod('paypal')">
-            <span class="paypal-text">PP</span>
-            <span>PayPal</span>
-          </button>
-        </div>
-      </div>
-
       <!-- Payment Error Banner -->
       <div id="payment-error" class="auth-error" style="display:none; margin-top: 16px;"></div>
 
@@ -279,42 +254,6 @@
           </div>
           <button type="submit" id="btn-pay-now" class="btn-primary btn-full" style="margin-top: 8px;">Pay $0.00 Now</button>
         </form>
-
-        <!-- Simulated Google Pay -->
-        <div id="payment-gpay-view" class="simulated-payment-view" style="display:none; margin-top: 16px;">
-          <div class="simulated-payment-info">
-            <span class="material-icons-outlined" style="color:#4285F4; font-size: 24px;">security</span>
-            <strong>Google Pay Active</strong>
-            <p>Use cards stored in your Google account to pay instantly.</p>
-          </div>
-          <button type="button" class="btn-simulated-pay gpay-btn" onclick="handleSimulatedPayment('google_pay')">
-            Pay with <span style="font-weight:700;">Google Pay</span>
-          </button>
-        </div>
-
-        <!-- Simulated Apple Pay -->
-        <div id="payment-applepay-view" class="simulated-payment-view" style="display:none; margin-top: 16px;">
-          <div class="simulated-payment-info">
-            <span class="material-icons" style="font-size: 24px;">apple</span>
-            <strong>Apple Pay Active</strong>
-            <p>Use cards stored in your Apple account to pay instantly.</p>
-          </div>
-          <button type="button" class="btn-simulated-pay applepay-btn" onclick="handleSimulatedPayment('apple_pay')">
-            <span class="material-icons" style="font-size:16px;">apple</span> Pay
-          </button>
-        </div>
-
-        <!-- Simulated PayPal -->
-        <div id="payment-paypal-view" class="simulated-payment-view" style="display:none; margin-top: 16px;">
-          <div class="simulated-payment-info">
-            <span class="paypal-text" style="color:#003087; font-size:18px; font-weight: bold; font-style: italic;">PP</span>
-            <strong>PayPal Checkouts</strong>
-            <p>Log in to your PayPal account to complete the purchase.</p>
-          </div>
-          <button type="button" class="btn-simulated-pay paypal-btn" onclick="handleSimulatedPayment('paypal')">
-            <span style="font-style:italic; font-weight:700; color:#003087;">Pay</span><span style="font-style:italic; font-weight:700; color:#0079C1;">Pal</span>
-          </button>
-        </div>
       </div>
 
       <!-- Processing state -->
