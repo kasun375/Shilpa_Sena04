@@ -9,22 +9,26 @@ import 'core/services/notification_service.dart';
 import 'core/providers/notification_provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Mobile Ads SDK
+  await MobileAds.instance.initialize();
 
   // Initialize Firebase
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    
+
     // Set up FCM background handler
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-    
+
     // Initialize Notification Service
     await NotificationService.initialize();
-    
+
     // Retrieve and print FCM Token
     final fcmToken = await FirebaseMessaging.instance.getToken();
     debugPrint('====================================');

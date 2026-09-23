@@ -101,11 +101,18 @@ class DatabaseProvider extends ChangeNotifier {
           .where('status', isEqualTo: 'purchased')
           .get();
 
-      final purchasedIds = snapshot.docs
-          .map((doc) => doc.data()['courseId'] as String)
-          .toSet();
+      final now = DateTime.now();
+      final validCourseIds = <String>{};
 
-      _myCourses = _courses.where((c) => purchasedIds.contains(c.id)).toList();
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final expiresAt = (data['expiresAt'] as Timestamp?)?.toDate();
+        if (expiresAt == null || expiresAt.isAfter(now)) {
+          validCourseIds.add(data['courseId'] as String);
+        }
+      }
+
+      _myCourses = _courses.where((c) => validCourseIds.contains(c.id)).toList();
       notifyListeners();
     } catch (e) {
       debugPrint('Error fetching my courses: $e');
@@ -119,6 +126,17 @@ class DatabaseProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Error adding course: $e');
+      rethrow;
+    }
+  }
+
+  // Admin: Update existing course details & classes
+  Future<void> updateCourse(CourseModel course) async {
+    try {
+      await firestore.collection('courses').doc(course.id).update(course.toFirestore());
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error updating course: $e');
       rethrow;
     }
   }
@@ -203,7 +221,13 @@ class DatabaseProvider extends ChangeNotifier {
           .get();
 
       if (doc.exists) {
-        return doc.data()?['status'] ?? 'pending';
+        final data = doc.data();
+        final status = data?['status'] ?? 'pending';
+        final expiresAt = (data?['expiresAt'] as Timestamp?)?.toDate();
+        if (status == 'purchased' && expiresAt != null && expiresAt.isBefore(DateTime.now())) {
+          return 'expired';
+        }
+        return status;
       }
       return 'available';
     } catch (e) {
@@ -234,6 +258,7 @@ class DatabaseProvider extends ChangeNotifier {
             'studentName': studentName,
             'studentEmail': studentEmail,
             'status': 'pending',
+            'billingCycle': 'monthly',
             'requestedAt': FieldValue.serverTimestamp(),
           });
       notifyListeners();
@@ -243,7 +268,7 @@ class DatabaseProvider extends ChangeNotifier {
     }
   }
 
-  // Directly enroll user after successful Stripe payment
+  // Directly enroll user after successful Stripe payment with 30-day access
   Future<void> enrollUserImmediately({
     required String courseId,
     required String courseTitle,
@@ -253,6 +278,9 @@ class DatabaseProvider extends ChangeNotifier {
   }) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
+
+    final now = DateTime.now();
+    final expiresAt = now.add(const Duration(days: 30));
 
     try {
       await firestore
@@ -266,7 +294,9 @@ class DatabaseProvider extends ChangeNotifier {
             'studentName': studentName,
             'studentEmail': studentEmail,
             'status': 'purchased',
+            'billingCycle': 'monthly',
             'purchasedAt': FieldValue.serverTimestamp(),
+            'expiresAt': Timestamp.fromDate(expiresAt),
             'paymentIntentId': paymentIntentId,
             'paymentMethod': 'stripe',
           });
@@ -345,7 +375,7 @@ class DatabaseProvider extends ChangeNotifier {
     }
   }
 
-  // Check if user has any approved enrollment
+  // Check if user has any active approved enrollment
   Future<bool> hasApprovedEnrollment() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return false;
@@ -358,13 +388,77 @@ class DatabaseProvider extends ChangeNotifier {
           .collectionGroup('enrollments')
           .where('studentEmail', isEqualTo: user.email)
           .where('status', isEqualTo: 'purchased')
-          .limit(1)
           .get();
 
-      return snapshot.docs.isNotEmpty;
+      final now = DateTime.now();
+      for (var doc in snapshot.docs) {
+        final expiresAt = (doc.data()['expiresAt'] as Timestamp?)?.toDate();
+        if (expiresAt == null || expiresAt.isAfter(now)) {
+          return true;
+        }
+      }
+
+      return false;
     } catch (e) {
       debugPrint('Error checking approved enrollment: $e');
       return false;
     }
   }
+
+  // Admin: Approve or Extend student monthly enrollment (+30 days)
+  Future<void> approveOrExtendEnrollment(DocumentReference docRef, {int days = 30}) async {
+    try {
+      final doc = await docRef.get();
+      final data = doc.data() as Map<String, dynamic>?;
+      final currentExpiresAt = (data?['expiresAt'] as Timestamp?)?.toDate();
+
+      DateTime baseDate = DateTime.now();
+      if (currentExpiresAt != null && currentExpiresAt.isAfter(baseDate)) {
+        baseDate = currentExpiresAt;
+      }
+
+      final newExpiresAt = baseDate.add(Duration(days: days));
+
+      await docRef.update({
+        'status': 'purchased',
+        'billingCycle': 'monthly',
+        'approvedAt': FieldValue.serverTimestamp(),
+        'expiresAt': Timestamp.fromDate(newExpiresAt),
+      });
+    } catch (e) {
+      debugPrint('Error updating enrollment: $e');
+      rethrow;
+    }
+  }
+  // Admin: Delete a single enrollment record
+  Future<void> deleteEnrollmentRecord(DocumentReference docRef) async {
+    try {
+      await docRef.delete();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error deleting enrollment record: $e');
+      rethrow;
+    }
+  }
+
+  // Admin: Clear all history enrollment records (purchased/rejected/expired)
+  Future<void> clearEnrollmentHistory() async {
+    try {
+      final snapshot = await firestore
+          .collectionGroup('enrollments')
+          .where('status', whereIn: ['purchased', 'rejected', 'expired'])
+          .get();
+
+      final batch = firestore.batch();
+      for (var doc in snapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error clearing enrollment history: $e');
+      rethrow;
+    }
+  }
+
 }

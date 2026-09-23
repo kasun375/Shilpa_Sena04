@@ -5,11 +5,13 @@ import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:exim_graphics_lms/core/services/notification_service.dart';
+import 'package:exim_graphics_lms/core/services/single_device_auth_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final SingleDeviceAuthService _singleDeviceService = SingleDeviceAuthService();
   User? _user;
   String _role = 'student'; // Default role
   StreamSubscription<String>? _tokenRefreshSubscription;
@@ -27,6 +29,7 @@ class AuthProvider extends ChangeNotifier {
       if (user != null) {
         await _fetchUserRole(user.uid);
         await _updateFcmToken(user.uid);
+        await _singleDeviceService.registerDeviceSession(user.uid);
 
         // Listen for token refreshes while the user is logged in
         _tokenRefreshSubscription?.cancel();
@@ -38,6 +41,7 @@ class AuthProvider extends ChangeNotifier {
       } else {
         _role = 'student';
         _tokenRefreshSubscription?.cancel();
+        _singleDeviceService.stopSessionMonitoring();
       }
       notifyListeners();
     });
@@ -193,6 +197,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    _singleDeviceService.stopSessionMonitoring();
     await _auth.signOut();
   }
 

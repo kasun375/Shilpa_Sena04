@@ -21,6 +21,9 @@ class CourseModel {
     required this.createdAt,
   });
 
+  String get formattedMonthlyPrice => 'LKR ${price.toStringAsFixed(2)} / mo';
+
+
   factory CourseModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return CourseModel(

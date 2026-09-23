@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:exim_graphics_lms/features/courses/presentation/providers/database_provider.dart';
 import 'package:exim_graphics_lms/core/presentation/widgets/custom_background.dart';
 import 'package:exim_graphics_lms/core/theme/design_constants.dart';
 
@@ -24,6 +26,13 @@ class ManageStudentsScreen extends StatelessWidget {
             'Enrollment Requests',
             style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.delete_sweep_outlined, color: DesignConstants.notificationRed),
+              tooltip: 'Clear History',
+              onPressed: () => _showClearHistoryDialog(context),
+            ),
+          ],
           bottom: const TabBar(
             indicatorColor: DesignConstants.primaryCyan,
             indicatorWeight: 3,
@@ -58,7 +67,7 @@ class ManageStudentsScreen extends StatelessWidget {
           child: TabBarView(
             children: [
               _buildEnrollmentList('pending'),
-              _buildEnrollmentList(['purchased', 'rejected']),
+              _buildEnrollmentList(['purchased', 'rejected', 'expired']),
             ],
           ),
         ),
@@ -120,6 +129,13 @@ class ManageStudentsScreen extends StatelessWidget {
     final dateStr = requestedAt != null
         ? "${requestedAt.toDate().day}/${requestedAt.toDate().month}/${requestedAt.toDate().year}"
         : 'Recently';
+    final expiresAt = data['expiresAt'] as Timestamp?;
+    final expiresStr = expiresAt != null
+        ? "${expiresAt.toDate().day}/${expiresAt.toDate().month}/${expiresAt.toDate().year}"
+        : '30 Days from approval';
+
+    final isExpired = expiresAt != null && expiresAt.toDate().isBefore(DateTime.now());
+    final displayStatus = (status == 'purchased' && isExpired) ? 'expired' : status;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -145,13 +161,13 @@ class ManageStudentsScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(status).withOpacity(0.1),
+                    color: _getStatusColor(displayStatus).withOpacity(0.1),
                     shape: BoxShape.circle,
-                    border: Border.all(color: _getStatusColor(status).withOpacity(0.2)),
+                    border: Border.all(color: _getStatusColor(displayStatus).withOpacity(0.2)),
                   ),
                   child: Icon(
                     Icons.person_outline,
-                    color: _getStatusColor(status),
+                    color: _getStatusColor(displayStatus),
                     size: 24,
                   ),
                 ),
@@ -175,7 +191,7 @@ class ManageStudentsScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                _buildStatusBadge(status),
+                _buildStatusBadge(displayStatus),
               ],
             ),
           ),
@@ -209,21 +225,47 @@ class ManageStudentsScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.calendar_today_outlined,
-                          color: Colors.white54,
-                          size: 14,
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today_outlined,
+                              color: Colors.white54,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Requested: $dateStr',
+                              style: const TextStyle(
+                                color: Colors.white54,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Requested: $dateStr',
-                          style: const TextStyle(
-                            color: Colors.white54,
-                            fontSize: 12,
+                        if (status == 'purchased') ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.timer_outlined,
+                                color: isExpired ? DesignConstants.notificationRed : Colors.greenAccent,
+                                size: 14,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                isExpired ? 'Expired on: $expiresStr' : 'Expires: $expiresStr',
+                                style: TextStyle(
+                                  color: isExpired ? DesignConstants.notificationRed : Colors.white70,
+                                  fontSize: 12,
+                                  fontWeight: isExpired ? FontWeight.bold : FontWeight.normal,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
+                        ],
                       ],
                     ),
                     if (status == 'pending')
@@ -240,8 +282,36 @@ class ManageStudentsScreen extends StatelessWidget {
                             icon: Icons.check,
                             color: Colors.greenAccent,
                             onTap: () =>
-                                _updateEnrollmentStatus(docRef, 'purchased'),
+                                context.read<DatabaseProvider>().approveOrExtendEnrollment(docRef, days: 30),
                             isPrimary: true,
+                          ),
+                        ],
+                      )
+                    else
+                      Row(
+                        children: [
+                          if (status == 'purchased') ...[
+                            ElevatedButton.icon(
+                              onPressed: () =>
+                                  context.read<DatabaseProvider>().approveOrExtendEnrollment(docRef, days: 30),
+                              icon: const Icon(Icons.more_time, size: 16),
+                              label: const Text('+30 Days Pass', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: DesignConstants.primaryCyan.withOpacity(0.2),
+                                foregroundColor: DesignConstants.primaryCyan,
+                                side: BorderSide(color: DesignConstants.primaryCyan.withOpacity(0.5)),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          _buildActionButton(
+                            icon: Icons.delete_outline,
+                            color: DesignConstants.notificationRed,
+                            onTap: () => context.read<DatabaseProvider>().deleteEnrollmentRecord(docRef),
                           ),
                         ],
                       ),
@@ -249,6 +319,57 @@ class ManageStudentsScreen extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showClearHistoryDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: DesignConstants.cardBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.white.withOpacity(0.1)),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.delete_sweep_outlined, color: DesignConstants.notificationRed),
+            SizedBox(width: 10),
+            Text('Clear Enrollment History', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+          ],
+        ),
+        content: const Text(
+          'Are you sure you want to delete all enrollment history records? This action cannot be undone.',
+          style: TextStyle(color: Colors.white70, fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await context.read<DatabaseProvider>().clearEnrollmentHistory();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Enrollment history cleared successfully'),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: DesignConstants.notificationRed,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Clear All', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -484,6 +605,7 @@ class ManageStudentsScreen extends StatelessWidget {
     switch (status) {
       case 'purchased':
         return Colors.greenAccent;
+      case 'expired':
       case 'rejected':
         return DesignConstants.notificationRed;
       default:

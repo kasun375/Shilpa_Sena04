@@ -177,7 +177,7 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> with SingleTick
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Secure Checkout',
+                    'Monthly Subscription',
                     style: TextStyle(
                       color: Color(0xFF0F172A),
                       fontSize: 18,
@@ -210,14 +210,35 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> with SingleTick
                     ),
                   ),
                   Text(
-                    '\$${widget.course.price.toStringAsFixed(2)}',
+                    widget.course.formattedMonthlyPrice,
                     style: const TextStyle(
                       color: Color(0xFF2563EB),
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFBFDBFE)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.calendar_month_outlined, size: 14, color: Color(0xFF2563EB)),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Monthly Pass: 30 Days Access starting today',
+                        style: TextStyle(color: Color(0xFF1E40AF), fontSize: 11, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -364,7 +385,7 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> with SingleTick
                                   shadowColor: const Color(0xFF2563EB).withOpacity(0.3),
                                 ),
                                 child: Text(
-                                  'Pay \$${widget.course.price.toStringAsFixed(2)} Now',
+                                  'Pay Fees (LKR ${widget.course.price.toStringAsFixed(2)})',
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,

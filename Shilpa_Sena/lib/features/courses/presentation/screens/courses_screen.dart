@@ -81,6 +81,11 @@ class CoursesScreen extends StatelessWidget {
         statusText = 'Pending';
         statusIcon = Icons.hourglass_top;
         break;
+      case 'expired':
+        statusColor = DesignConstants.notificationRed;
+        statusText = 'Expired';
+        statusIcon = Icons.timer_off;
+        break;
       default:
         statusColor = DesignConstants.primaryCyan;
         statusText = 'Available';
@@ -164,7 +169,7 @@ class CoursesScreen extends StatelessWidget {
                 const Icon(Icons.sell_outlined, size: 18, color: Colors.white70),
                 const SizedBox(width: 8),
                 Text(
-                  'Price: \$${course.price.toStringAsFixed(2)}',
+                  'Monthly Price: ${course.formattedMonthlyPrice}',
                   style: const TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],
@@ -243,6 +248,55 @@ class CoursesScreen extends StatelessWidget {
           ),
         ],
       );
+    } else if (status == 'expired') {
+      return Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: DesignConstants.notificationRed.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: DesignConstants.notificationRed.withOpacity(0.3)),
+            ),
+            child: const Text(
+              'Your monthly subscription has expired. Renew to access classes & materials.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: DesignConstants.notificationRed, fontSize: 12),
+            ),
+          ),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (context) => Dialog(
+                    backgroundColor: Colors.transparent,
+                    insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                    child: StripePaymentSheet(
+                      course: course,
+                      onSuccess: () {},
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.autorenew, color: Colors.black),
+              label: Text('Pay Fees (${course.formattedMonthlyPrice})'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: DesignConstants.primaryCyan,
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
     } else {
       return SizedBox(
         width: double.infinity,
@@ -264,7 +318,7 @@ class CoursesScreen extends StatelessWidget {
             );
           },
           icon: const Icon(Icons.payment, color: Colors.black),
-          label: Text('Purchase (\$${course.price.toStringAsFixed(2)})'),
+          label: Text('Pay Fees (${course.formattedMonthlyPrice})'),
           style: ElevatedButton.styleFrom(
             backgroundColor: DesignConstants.primaryCyan,
             foregroundColor: Colors.black,

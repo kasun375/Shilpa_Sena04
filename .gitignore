@@ -15,6 +15,8 @@ Shilpa_Sena/build/
 # Local IDE and System files
 .idea/
 .vscode/
+.firebase/
+Shilpa_Sena/.firebase/
 *.log
 *.class
 .DS_Store

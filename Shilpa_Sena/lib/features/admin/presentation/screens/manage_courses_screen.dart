@@ -16,6 +16,14 @@ class ManageCoursesScreen extends StatelessWidget {
     );
   }
 
+  void _showEditCourseDialog(BuildContext context, CourseModel course) {
+    showDialog(
+      context: context,
+      builder: (_) =>
+          _EditCourseDialog(dbProvider: context.read<DatabaseProvider>(), course: course),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<DatabaseProvider>(
@@ -115,7 +123,7 @@ class ManageCoursesScreen extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      'Price: \$${course.price.toStringAsFixed(2)}',
+                                      'Monthly Price: ${course.formattedMonthlyPrice}',
                                       style: const TextStyle(
                                         color: Colors.white70,
                                         fontSize: 13,
@@ -126,57 +134,69 @@ class ManageCoursesScreen extends StatelessWidget {
                               ],
                             ),
                           ),
-                          trailing: IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline,
-                              color: DesignConstants.notificationRed,
-                            ),
-                            onPressed: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  backgroundColor: DesignConstants.cardBackground,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    side: BorderSide(
-                                      color: Colors.white.withOpacity(0.1),
-                                    ),
-                                  ),
-                                  title: const Text(
-                                    'Delete Course',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  content: Text(
-                                    'Are you sure you want to delete "${course.title}"?',
-                                    style: const TextStyle(color: Colors.white70),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx, false),
-                                      child: const Text(
-                                        'Cancel',
-                                        style: TextStyle(color: Colors.white70),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx, true),
-                                      child: const Text(
-                                        'Delete',
-                                        style: TextStyle(
-                                          color: DesignConstants.notificationRed,
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.edit_outlined,
+                                  color: DesignConstants.primaryCyan,
+                                ),
+                                onPressed: () => _showEditCourseDialog(context, course),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: DesignConstants.notificationRed,
+                                ),
+                                onPressed: () async {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      backgroundColor: DesignConstants.cardBackground,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        side: BorderSide(
+                                          color: Colors.white.withOpacity(0.1),
                                         ),
                                       ),
+                                      title: const Text(
+                                        'Delete Course',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      content: Text(
+                                        'Are you sure you want to delete "${course.title}"?',
+                                        style: const TextStyle(color: Colors.white70),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(ctx, false),
+                                          child: const Text(
+                                            'Cancel',
+                                            style: TextStyle(color: Colors.white70),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(ctx, true),
+                                          child: const Text(
+                                            'Delete',
+                                            style: TextStyle(
+                                              color: DesignConstants.notificationRed,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              );
-                              if (confirm == true) {
-                                await dbProvider.deleteCourse(course.id);
-                              }
-                            },
+                                  );
+                                  if (confirm == true) {
+                                    await dbProvider.deleteCourse(course.id);
+                                  }
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       );
@@ -309,7 +329,7 @@ class _AddCourseDialogState extends State<_AddCourseDialog> {
               const SizedBox(height: 12),
               _buildTextField(
                 controller: _priceController,
-                label: 'Price (USD)',
+                label: 'Monthly Price (LKR / mo)',
                 icon: Icons.sell,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (v) {
@@ -346,6 +366,208 @@ class _AddCourseDialogState extends State<_AddCourseDialog> {
                   ),
                 )
               : const Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white70),
+        prefixIcon: Icon(icon, color: DesignConstants.primaryCyan, size: 20),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: DesignConstants.primaryCyan),
+        ),
+        errorStyle: const TextStyle(color: DesignConstants.notificationRed),
+      ),
+      validator: validator,
+    );
+  }
+}
+
+class _EditCourseDialog extends StatefulWidget {
+  final DatabaseProvider dbProvider;
+  final CourseModel course;
+
+  const _EditCourseDialog({required this.dbProvider, required this.course});
+
+  @override
+  State<_EditCourseDialog> createState() => _EditCourseDialogState();
+}
+
+class _EditCourseDialogState extends State<_EditCourseDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _titleController;
+  late TextEditingController _dateController;
+  late TextEditingController _timeController;
+  late TextEditingController _zoomLinkController;
+  late TextEditingController _priceController;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.course.title);
+    _dateController = TextEditingController(text: widget.course.date);
+    _timeController = TextEditingController(text: widget.course.time);
+    _zoomLinkController = TextEditingController(text: widget.course.zoomLink);
+    _priceController = TextEditingController(text: widget.course.price.toStringAsFixed(2));
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _dateController.dispose();
+    _timeController.dispose();
+    _zoomLinkController.dispose();
+    _priceController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final priceVal = double.tryParse(_priceController.text.trim()) ?? widget.course.price;
+      final updatedCourse = CourseModel(
+        id: widget.course.id,
+        title: _titleController.text.trim(),
+        date: _dateController.text.trim(),
+        time: _timeController.text.trim(),
+        zoomLink: _zoomLinkController.text.trim(),
+        price: priceVal,
+        isAvailable: widget.course.isAvailable,
+        createdAt: widget.course.createdAt,
+      );
+
+      await widget.dbProvider.updateCourse(updatedCourse);
+
+      if (mounted) {
+        Navigator.pop(context); // Close dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Course details & class updated successfully'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update course: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: DesignConstants.cardBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.white.withOpacity(0.1)),
+      ),
+      title: const Text(
+        'Edit Course & Class Details',
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
+      content: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildTextField(
+                controller: _titleController,
+                label: 'Course Title',
+                icon: Icons.title,
+                validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                controller: _dateController,
+                label: 'Next Class Date (e.g. Monday)',
+                icon: Icons.calendar_today,
+                validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                controller: _timeController,
+                label: 'Class Time (e.g. 7:00 PM)',
+                icon: Icons.schedule,
+                validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                controller: _zoomLinkController,
+                label: 'Zoom Link',
+                icon: Icons.videocam,
+                validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                controller: _priceController,
+                label: 'Monthly Price (LKR / mo)',
+                icon: Icons.sell,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Required';
+                  if (double.tryParse(v) == null) return 'Must be a valid number';
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isLoading ? null : () => Navigator.pop(context),
+          child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+        ),
+        ElevatedButton(
+          onPressed: _isLoading ? null : _submit,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: DesignConstants.primaryCyan,
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: _isLoading
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                  ),
+                )
+              : const Text('Update Course', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ],
     );

@@ -19,6 +19,8 @@ import 'package:exim_graphics_lms/features/admin/presentation/screens/user_list_
 import 'package:exim_graphics_lms/features/admin/presentation/screens/manage_promos_screen.dart';
 import 'package:exim_graphics_lms/features/admin/presentation/screens/manage_announcements_screen.dart';
 import 'package:exim_graphics_lms/features/info/presentation/screens/privacy_policy_screen.dart';
+import 'package:exim_graphics_lms/features/info/presentation/screens/terms_conditions_screen.dart';
+import 'package:exim_graphics_lms/features/info/presentation/screens/refund_policy_screen.dart';
 import 'package:exim_graphics_lms/features/info/presentation/screens/contact_us_screen.dart';
 
 class AppRouter {
@@ -69,6 +71,16 @@ class AppRouter {
         path: '/privacy-policy',
         name: 'privacy-policy',
         builder: (context, state) => const PrivacyPolicyScreen(),
+      ),
+      GoRoute(
+        path: '/terms-conditions',
+        name: 'terms-conditions',
+        builder: (context, state) => const TermsConditionsScreen(),
+      ),
+      GoRoute(
+        path: '/refund-policy',
+        name: 'refund-policy',
+        builder: (context, state) => const RefundPolicyScreen(),
       ),
       GoRoute(
         path: '/courses',

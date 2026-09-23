@@ -4,8 +4,8 @@ import 'package:exim_graphics_lms/core/presentation/widgets/custom_background.da
 import 'package:exim_graphics_lms/core/presentation/widgets/custom_app_bar.dart';
 import '../../../../core/presentation/widgets/app_drawer.dart';
 
-class PrivacyPolicyScreen extends StatelessWidget {
-  const PrivacyPolicyScreen({super.key});
+class TermsConditionsScreen extends StatelessWidget {
+  const TermsConditionsScreen({super.key});
 
   Future<void> _launchURL(String urlString) async {
     final Uri url = Uri.parse(urlString);
@@ -24,12 +24,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
       drawer: const AppDrawer(),
       body: CustomBackground(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Privacy Policy',
+                'Terms and Conditions',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 28,
@@ -46,39 +46,48 @@ class PrivacyPolicyScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               _buildSectionText(
-                'At Shilpa Sena LMS, we are committed to protecting the privacy and security of our customers\' personal information. This Privacy Policy outlines how we collect, use, and safeguard your information when you visit or make a purchase on our website or mobile application. By using our services, you consent to the practices described in this policy.',
+                'Welcome to Shilpa Sena LMS. These Terms and Conditions govern your use of our website and application, and the purchase and sale of products from our platform. By accessing and using our platform, you agree to comply with these terms. Please read them carefully before proceeding with any transactions.',
               ),
-              _buildSectionTitle('Information We Collect'),
+              _buildSectionTitle('1. Use of the Website'),
               _buildSectionText(
-                'When you visit our platform, we may collect certain information about you, including:\n'
-                '• Personal identification information (such as your name, email address, and phone number) provided voluntarily by you during registration or checkout.\n'
-                '• Payment and billing information necessary to process your orders, securely handled by trusted third-party processors.\n'
-                '• Browsing information, such as IP address, device type, and usage patterns collected automatically.',
+                'a. You must be at least 18 years old to use our website or make purchases.\n'
+                'b. You are responsible for maintaining the confidentiality of your account information, including your username and password.\n'
+                'c. You agree to provide accurate and current information during the registration and checkout process.\n'
+                'd. You may not use our website for any unlawful or unauthorized purposes.',
               ),
-              _buildSectionTitle('Use of Information'),
+              _buildSectionTitle('2. Product Information and Pricing'),
               _buildSectionText(
-                'We may use the collected information for the following purposes:\n'
-                '• To process and fulfill your course enrollments and orders.\n'
-                '• To communicate with you regarding your purchases and provide customer support.\n'
-                '• To personalize your shopping and learning experience with relevant recommendations.\n'
-                '• To improve our app, products, and services based on user feedback.\n'
-                '• To detect and prevent fraud, unauthorized activities, and security threats.',
+                'a. We strive to provide accurate product descriptions, images, and pricing information. However, we do not guarantee the accuracy or completeness of such information.\n'
+                'b. Prices are subject to change without notice. Any promotions or discounts are valid for a limited time and may be subject to additional terms.',
               ),
-              _buildSectionTitle('Information Sharing'),
+              _buildSectionTitle('3. Orders and Payments'),
               _buildSectionText(
-                'We respect your privacy and do not sell, trade, or transfer your personal information to third parties without consent, except to trusted service providers who assist us in operating our app and processing payments under strict confidentiality agreements, or when required by law.',
+                'a. By placing an order, you make an offer to purchase the selected products.\n'
+                'b. We reserve the right to refuse or cancel any order for any reason, including product availability or suspected fraud.\n'
+                'c. You agree to provide valid payment details and authorize total order charges.\n'
+                'd. We use trusted third-party payment processors. Full payment details are not stored on our servers.',
               ),
-              _buildSectionTitle('Data Security'),
+              _buildSectionTitle('4. Shipping and Delivery'),
               _buildSectionText(
-                'We implement industry-standard security measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction. However, no electronic transmission or storage is 100% secure.',
+                'a. Reasonable efforts will be made to ensure timely delivery of your orders.\n'
+                'b. Delivery dates are estimates and may vary by location and external conditions.',
               ),
-              _buildSectionTitle('Cookies & Tracking'),
+              _buildSectionTitle('5. Returns and Refunds'),
               _buildSectionText(
-                'We use cookies and similar technologies to enhance browsing experience, analyze traffic, and gather user preferences. You can manage cookies via your browser settings.',
+                'Our Returns and Refund Policy governs the process and conditions for returning products and seeking refunds. Please refer to our Refund Policy page for full details.',
               ),
-              _buildSectionTitle('Changes to Policy'),
+              _buildSectionTitle('6. Intellectual Property'),
               _buildSectionText(
-                'We reserve the right to update this Privacy Policy at any time. Any changes will be posted with a revised "last updated" date.',
+                'a. All content on our platform (text, images, graphics, logos) is protected by intellectual property rights.\n'
+                'b. You may not reproduce, distribute, or modify content without prior written consent.',
+              ),
+              _buildSectionTitle('7. Limitation of Liability'),
+              _buildSectionText(
+                'In no event shall Shilpa Sena LMS or its affiliates be liable for direct, indirect, incidental, or consequential damages arising out of your use of our platform.',
+              ),
+              _buildSectionTitle('8. Amendments'),
+              _buildSectionText(
+                'We reserve the right to modify these Terms and Conditions at any time without prior notice. Please review them periodically.',
               ),
               const SizedBox(height: 40),
               _buildSocialSupport(),
@@ -158,8 +167,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
       child: Container(
         width: 45,
         height: 45,
-        decoration: BoxDecoration(
-          color: Colors.white, // In the image they look like solid buttons with colored icons or backgrounds
+        decoration: const BoxDecoration(
+          color: Colors.white,
           shape: BoxShape.circle,
         ),
         child: Center(

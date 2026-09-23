@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:exim_graphics_lms/features/auth/presentation/providers/auth_provider.dart';
 import 'package:exim_graphics_lms/features/courses/presentation/providers/database_provider.dart';
 import 'package:exim_graphics_lms/core/providers/notification_provider.dart';
@@ -27,12 +28,35 @@ class _HomeScreenState extends State<HomeScreen> {
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   List<CourseModel> _filteredCourses = [];
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
     _searchFocusNode.addListener(_onFocusChanged);
+    
+    // Initialize BannerAd
+    _bannerAd = BannerAd(
+      adUnitId: 'ca-app-pub-1267014580635785/8448906002',
+      request: const AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          debugPrint('Failed to load a banner ad: ${err.message}');
+          _isBannerAdReady = false;
+          ad.dispose();
+        },
+      ),
+    );
+    _bannerAd!.load();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DatabaseProvider>().fetchMyCourses();
       context.read<NotificationProvider>().reload();
@@ -46,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _searchController.dispose();
     _searchFocusNode.dispose();
     _hideOverlay();
+    _bannerAd?.dispose();
     super.dispose();
   }
 
@@ -256,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const Icon(Icons.sell_outlined, color: Colors.white70, size: 18),
                       const SizedBox(width: 8),
                       Text(
-                        'Price: \$${course.price.toStringAsFixed(2)}',
+                        'Monthly Price: ${course.formattedMonthlyPrice}',
                         style: const TextStyle(color: Colors.white70, fontSize: 14),
                       ),
                     ],
@@ -333,6 +358,56 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: TextStyle(color: Colors.orange, fontSize: 13),
                           ),
                         );
+                      } else if (status == 'expired') {
+                        return Column(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(10),
+                              margin: const EdgeInsets.only(bottom: 12),
+                              decoration: BoxDecoration(
+                                color: DesignConstants.notificationRed.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: DesignConstants.notificationRed.withOpacity(0.3)),
+                              ),
+                              child: const Text(
+                                'Your monthly subscription has expired. Renew to access classes & materials.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: DesignConstants.notificationRed, fontSize: 12),
+                              ),
+                            ),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: true,
+                                    builder: (context) => Dialog(
+                                      backgroundColor: Colors.transparent,
+                                      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                                      child: StripePaymentSheet(
+                                        course: course,
+                                        onSuccess: () {},
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.autorenew, color: Colors.black),
+                                label: Text('Pay Fees (${course.formattedMonthlyPrice})'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: DesignConstants.primaryCyan,
+                                  foregroundColor: Colors.black,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
                       } else {
                         return SizedBox(
                           width: double.infinity,
@@ -353,7 +428,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             },
                             icon: const Icon(Icons.payment, color: Colors.black),
-                            label: Text('Purchase (\$${course.price.toStringAsFixed(2)})'),
+                            label: Text('Pay Fees (${course.formattedMonthlyPrice})'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: DesignConstants.primaryCyan,
                               foregroundColor: Colors.black,
@@ -451,6 +526,17 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 _buildWelcomeBanner(context),
                 _buildMainCarousel(context),
+                if (_isBannerAdReady && _bannerAd != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Center(
+                      child: SizedBox(
+                        width: _bannerAd!.size.width.toDouble(),
+                        height: _bannerAd!.size.height.toDouble(),
+                        child: AdWidget(ad: _bannerAd!),
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 12),
                 _buildSearchBar(context),
                 const SizedBox(height: 12),

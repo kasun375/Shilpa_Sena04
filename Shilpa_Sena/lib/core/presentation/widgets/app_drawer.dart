@@ -66,6 +66,14 @@ class AppDrawer extends StatelessWidget {
                   context.pop();
                   context.push('/privacy-policy');
                 }),
+                _buildDrawerItem(context, Icons.gavel, 'Terms & Conditions', () {
+                  context.pop();
+                  context.push('/terms-conditions');
+                }),
+                _buildDrawerItem(context, Icons.receipt_long, 'Refund Policy', () {
+                  context.pop();
+                  context.push('/refund-policy');
+                }),
                 _buildDrawerItem(context, Icons.contact_support, 'Contact Us', () {
                   context.pop();
                   context.push('/contact-us');

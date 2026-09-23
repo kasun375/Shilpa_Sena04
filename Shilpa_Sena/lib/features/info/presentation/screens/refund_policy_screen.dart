@@ -4,8 +4,8 @@ import 'package:exim_graphics_lms/core/presentation/widgets/custom_background.da
 import 'package:exim_graphics_lms/core/presentation/widgets/custom_app_bar.dart';
 import '../../../../core/presentation/widgets/app_drawer.dart';
 
-class PrivacyPolicyScreen extends StatelessWidget {
-  const PrivacyPolicyScreen({super.key});
+class RefundPolicyScreen extends StatelessWidget {
+  const RefundPolicyScreen({super.key});
 
   Future<void> _launchURL(String urlString) async {
     final Uri url = Uri.parse(urlString);
@@ -24,12 +24,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
       drawer: const AppDrawer(),
       body: CustomBackground(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Privacy Policy',
+                'Refund Policy',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 28,
@@ -46,39 +46,43 @@ class PrivacyPolicyScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               _buildSectionText(
-                'At Shilpa Sena LMS, we are committed to protecting the privacy and security of our customers\' personal information. This Privacy Policy outlines how we collect, use, and safeguard your information when you visit or make a purchase on our website or mobile application. By using our services, you consent to the practices described in this policy.',
+                'Thank you for shopping at Shilpa Sena LMS. We value your satisfaction and strive to provide you with the best online shopping and learning experience possible. If, for any reason, you are not completely satisfied with your purchase, we are here to help.',
               ),
-              _buildSectionTitle('Information We Collect'),
+              _buildSectionTitle('Returns'),
               _buildSectionText(
-                'When you visit our platform, we may collect certain information about you, including:\n'
-                '• Personal identification information (such as your name, email address, and phone number) provided voluntarily by you during registration or checkout.\n'
-                '• Payment and billing information necessary to process your orders, securely handled by trusted third-party processors.\n'
-                '• Browsing information, such as IP address, device type, and usage patterns collected automatically.',
+                'We accept returns within 30 days from the date of purchase. To be eligible for a return, your item must be unused and in the same condition that you received it. It must also be in the original packaging.',
               ),
-              _buildSectionTitle('Use of Information'),
+              _buildSectionTitle('Refunds'),
               _buildSectionText(
-                'We may use the collected information for the following purposes:\n'
-                '• To process and fulfill your course enrollments and orders.\n'
-                '• To communicate with you regarding your purchases and provide customer support.\n'
-                '• To personalize your shopping and learning experience with relevant recommendations.\n'
-                '• To improve our app, products, and services based on user feedback.\n'
-                '• To detect and prevent fraud, unauthorized activities, and security threats.',
+                'Once we receive your return and inspect the item, we will notify you of the status of your refund. If your return is approved, we will initiate a refund to your original method of payment excluding initial shipping charges.',
               ),
-              _buildSectionTitle('Information Sharing'),
+              _buildSectionTitle('Exchanges'),
               _buildSectionText(
-                'We respect your privacy and do not sell, trade, or transfer your personal information to third parties without consent, except to trusted service providers who assist us in operating our app and processing payments under strict confidentiality agreements, or when required by law.',
+                'If you would like to exchange your item for a different size, color, or style, please contact our customer support team within 30 days of receiving your order.',
               ),
-              _buildSectionTitle('Data Security'),
+              _buildSectionTitle('Non-Returnable Items'),
               _buildSectionText(
-                'We implement industry-standard security measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction. However, no electronic transmission or storage is 100% secure.',
+                'Certain items are non-returnable and non-refundable:\n'
+                '• Gift cards\n'
+                '• Downloadable software products\n'
+                '• Personalized or custom-made items\n'
+                '• Perishable goods',
               ),
-              _buildSectionTitle('Cookies & Tracking'),
+              _buildSectionTitle('Damaged or Defective Items'),
               _buildSectionText(
-                'We use cookies and similar technologies to enhance browsing experience, analyze traffic, and gather user preferences. You can manage cookies via your browser settings.',
+                'In the unfortunate event that your item arrives damaged or defective, please contact us immediately. We will arrange a replacement or issue a refund based on product availability.',
               ),
-              _buildSectionTitle('Changes to Policy'),
+              _buildSectionTitle('Return Shipping'),
               _buildSectionText(
-                'We reserve the right to update this Privacy Policy at any time. Any changes will be posted with a revised "last updated" date.',
+                'You will be responsible for return shipping costs unless the return is due to our error (e.g. wrong item shipped, defective product), in which case a prepaid shipping label will be provided.',
+              ),
+              _buildSectionTitle('Processing Time'),
+              _buildSectionText(
+                'Refunds and exchanges will be processed within 5 business days after receiving your returned item.',
+              ),
+              _buildSectionTitle('Contact Us'),
+              _buildSectionText(
+                'If you have any questions or concerns regarding our refund policy, please contact our customer support team.',
               ),
               const SizedBox(height: 40),
               _buildSocialSupport(),
@@ -158,8 +162,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
       child: Container(
         width: 45,
         height: 45,
-        decoration: BoxDecoration(
-          color: Colors.white, // In the image they look like solid buttons with colored icons or backgrounds
+        decoration: const BoxDecoration(
+          color: Colors.white,
           shape: BoxShape.circle,
         ),
         child: Center(

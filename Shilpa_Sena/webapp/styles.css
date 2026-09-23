@@ -985,25 +985,39 @@ a:hover { text-decoration: underline; }
   min-width: 280px;
 }
 
-/* ── CONTACT / PRIVACY PAGE ──────────────────────────────── */
-.info-page { max-width: 700px; }
-.info-page h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+/* ── CONTACT / PRIVACY / LEGAL PAGES ─────────────────────── */
+.info-page { max-width: 800px; margin: 0 auto; padding-bottom: 40px; }
+.info-page h1 { font-size: 32px; font-weight: 800; margin-bottom: 6px; color: #fff; }
 .info-page h2 {
-  font-size: 32px;
+  font-size: 20px;
   font-weight: 700;
   margin-bottom: 12px;
-  margin-top: 24px;
+  margin-top: 28px;
+  color: var(--primary-cyan);
 }
 .info-page .subtitle {
   color: rgba(255,255,255,0.6);
   font-size: 14px;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 .info-page .body-text {
+  color: rgba(255,255,255,0.9);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+.info-page ul {
+  margin-left: 20px;
+  margin-bottom: 24px;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.7;
+}
+.info-page li {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+.info-page strong {
   color: #fff;
-  font-size: 16px;
-  line-height: 1.6;
-  margin-bottom: 20px;
 }
 
 .profile-card {
