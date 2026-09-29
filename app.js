@@ -650,7 +650,7 @@ function renderHome() {
             <div class="card-icon"><span class="material-icons-outlined">school</span></div>
             <div class="card-info">
               <h4>${c.title}</h4>
-              <p>${c.date}, ${c.time} &bull; $${parseFloat(c.price || 10.0).toFixed(2)}</p>
+              <p>${c.date}, ${c.time} &bull; Rs. ${parseFloat(c.price || 10.0).toFixed(2)}</p>
             </div>
           </div>
         `).join('')}
@@ -822,7 +822,7 @@ function renderCourses() {
     } else {
       actionsHtml = `
         <button class="btn-primary btn-full" onclick="showPaymentModal('${course.id}')">
-          <span class="material-icons">payment</span> Purchase ($${parseFloat(course.price || 10.0).toFixed(2)})
+          <span class="material-icons">payment</span> Purchase (Rs. ${parseFloat(course.price || 10.0).toFixed(2)})
         </button>
       `;
     }
@@ -841,7 +841,7 @@ function renderCourses() {
         </div>
         <div class="course-schedule" style="margin-top:-10px;">
           <span class="material-icons-outlined">sell</span>
-          Price: $${parseFloat(course.price || 10.0).toFixed(2)}
+          Price: Rs. ${parseFloat(course.price || 10.0).toFixed(2)}
         </div>
         <hr class="course-divider">
         ${actionsHtml}
@@ -2412,8 +2412,8 @@ window.showPaymentModal = function(courseId) {
   
   // Set details in modal
   document.getElementById('payment-course-title').innerText = selectedPaymentCourseTitle;
-  document.getElementById('payment-course-price').innerText = `$${selectedPaymentCoursePrice.toFixed(2)}`;
-  document.getElementById('btn-pay-now').innerText = `Pay $${selectedPaymentCoursePrice.toFixed(2)} Now`;
+  document.getElementById('payment-course-price').innerText = `Rs. ${selectedPaymentCoursePrice.toFixed(2)}`;
+  document.getElementById('btn-pay-now').innerText = `Pay Rs. ${selectedPaymentCoursePrice.toFixed(2)} Now`;
   
   // Reset states
   document.getElementById('payment-error').style.display = 'none';
