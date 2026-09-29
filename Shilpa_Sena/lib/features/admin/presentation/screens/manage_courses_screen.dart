@@ -329,7 +329,7 @@ class _AddCourseDialogState extends State<_AddCourseDialog> {
               const SizedBox(height: 12),
               _buildTextField(
                 controller: _priceController,
-                label: 'Monthly Price (LKR / mo)',
+                label: 'Monthly Price (Rs. / mo)',
                 icon: Icons.sell,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (v) {
@@ -531,7 +531,7 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
               const SizedBox(height: 12),
               _buildTextField(
                 controller: _priceController,
-                label: 'Monthly Price (LKR / mo)',
+                label: 'Monthly Price (Rs. / mo)',
                 icon: Icons.sell,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (v) {

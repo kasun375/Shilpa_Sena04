@@ -385,7 +385,7 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> with SingleTick
                                   shadowColor: const Color(0xFF2563EB).withOpacity(0.3),
                                 ),
                                 child: Text(
-                                  'Pay Fees (LKR ${widget.course.price.toStringAsFixed(2)})',
+                                  'Pay Fees (Rs. ${widget.course.price.toStringAsFixed(2)})',
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,

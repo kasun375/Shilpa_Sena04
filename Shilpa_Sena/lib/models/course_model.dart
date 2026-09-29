@@ -21,7 +21,7 @@ class CourseModel {
     required this.createdAt,
   });
 
-  String get formattedMonthlyPrice => 'LKR ${price.toStringAsFixed(2)} / mo';
+  String get formattedMonthlyPrice => 'Rs. ${price.toStringAsFixed(2)} / mo';
 
 
   factory CourseModel.fromFirestore(DocumentSnapshot doc) {

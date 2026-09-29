@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -14,8 +15,14 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Mobile Ads SDK
-  await MobileAds.instance.initialize();
+  // Initialize Mobile Ads SDK (Mobile only)
+  if (!kIsWeb) {
+    try {
+      await MobileAds.instance.initialize();
+    } catch (e) {
+      debugPrint('MobileAds init error: $e');
+    }
+  }
 
   // Initialize Firebase
   try {
@@ -23,17 +30,21 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    // Set up FCM background handler
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    // Set up FCM background handler (Mobile only)
+    if (!kIsWeb) {
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    }
 
     // Initialize Notification Service
     await NotificationService.initialize();
 
-    // Retrieve and print FCM Token
-    final fcmToken = await FirebaseMessaging.instance.getToken();
-    debugPrint('====================================');
-    debugPrint('FCM Token: $fcmToken');
-    debugPrint('====================================');
+    // Retrieve and print FCM Token (Mobile only)
+    if (!kIsWeb) {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      debugPrint('====================================');
+      debugPrint('FCM Token: $fcmToken');
+      debugPrint('====================================');
+    }
   } catch (e) {
     debugPrint('Firebase init failed: $e');
   }

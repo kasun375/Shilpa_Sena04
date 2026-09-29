@@ -11,6 +11,29 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   static Future<void> initialize() async {
+    if (kIsWeb) {
+      try {
+        NotificationSettings settings = await _firebaseMessaging.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+        debugPrint('Web FCM Permission status: ${settings.authorizationStatus}');
+      } catch (e) {
+        debugPrint('Web FCM Permission request failed: $e');
+      }
+
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+        if (message.notification != null) {
+          final title = message.notification?.title ?? 'New Notification';
+          final body = message.notification?.body ?? '';
+          await NotificationProvider.saveMessageLocally(title, body);
+          NotificationProvider.notifyReceived();
+        }
+      });
+      return;
+    }
+
     // Request permission for push notifications using both Firebase and PermissionHandler
     if (defaultTargetPlatform == TargetPlatform.android) {
       await Permission.notification.request();

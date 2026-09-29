@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -37,25 +38,33 @@ class _HomeScreenState extends State<HomeScreen> {
     _searchController.addListener(_onSearchChanged);
     _searchFocusNode.addListener(_onFocusChanged);
     
-    // Initialize BannerAd
-    _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-1267014580635785/8448906002',
-      request: const AdRequest(),
-      size: AdSize.banner,
-      listener: BannerAdListener(
-        onAdLoaded: (_) {
-          setState(() {
-            _isBannerAdReady = true;
-          });
-        },
-        onAdFailedToLoad: (ad, err) {
-          debugPrint('Failed to load a banner ad: ${err.message}');
-          _isBannerAdReady = false;
-          ad.dispose();
-        },
-      ),
-    );
-    _bannerAd!.load();
+    // Initialize BannerAd (Mobile only)
+    if (!kIsWeb) {
+      _bannerAd = BannerAd(
+        adUnitId: 'ca-app-pub-1267014580635785/8448906002',
+        request: const AdRequest(),
+        size: AdSize.banner,
+        listener: BannerAdListener(
+          onAdLoaded: (_) {
+            if (mounted) {
+              setState(() {
+                _isBannerAdReady = true;
+              });
+            }
+          },
+          onAdFailedToLoad: (ad, err) {
+            debugPrint('Failed to load a banner ad: ${err.message}');
+            if (mounted) {
+              setState(() {
+                _isBannerAdReady = false;
+              });
+            }
+            ad.dispose();
+          },
+        ),
+      );
+      _bannerAd!.load();
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DatabaseProvider>().fetchMyCourses();
