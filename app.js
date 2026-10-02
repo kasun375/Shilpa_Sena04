@@ -14,11 +14,20 @@ const firebaseConfig = {
   measurementId: "G-9CD61L58XS"
 };
 
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
+// Initialize Firebase safely
+let app, auth, db, storage;
+try {
+  if (typeof firebase !== 'undefined') {
+    app = firebase.initializeApp(firebaseConfig);
+    auth = typeof firebase.auth === 'function' ? firebase.auth() : null;
+    db = typeof firebase.firestore === 'function' ? firebase.firestore() : null;
+    storage = typeof firebase.storage === 'function' ? firebase.storage() : null;
+  } else {
+    console.warn("Firebase SDK not detected. App will run in offline mode.");
+  }
+} catch (e) {
+  console.error("Firebase initialization failed:", e);
+}
 
 // --- Global State ---
 let currentUser = null;
@@ -153,6 +162,12 @@ function setupMobieMenu() {
 
 // --- Firebase Listeners ---
 function initFirebaseListeners() {
+  if (!auth) {
+    console.warn("Auth is unavailable.");
+    const hash = window.location.hash || '#home';
+    renderPage(hash);
+    return;
+  }
   // 1. Auth Listener
   auth.onAuthStateChanged(async (user) => {
     currentUser = user;
@@ -223,6 +238,12 @@ function initFirebaseListeners() {
 }
 
 function subscribeGlobalListeners() {
+  if (!db) {
+    console.warn("Firestore db is unavailable.");
+    const hash = window.location.hash || '#home';
+    renderPage(hash);
+    return;
+  }
   // Clean up any existing listeners before resubscribing
   unsubscribeGlobalListeners();
 

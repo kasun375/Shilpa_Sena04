@@ -102,12 +102,13 @@ a:hover { text-decoration: underline; }
 }
 
 .nav-container {
-  max-width: 1400px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   height: 100%;
   display: flex;
   align-items: center;
-  padding: 0 24px;
+  padding: 0 40px;
   gap: 16px;
 }
 
@@ -292,10 +293,10 @@ a:hover { text-decoration: underline; }
   flex: 1 0 auto;
   position: relative;
   z-index: 1;
-  max-width: 1200px;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding: 30px var(--pad);
+  padding: 30px 40px;
   width: 100%;
 }
 
@@ -986,7 +987,7 @@ a:hover { text-decoration: underline; }
 }
 
 /* ── CONTACT / PRIVACY / LEGAL PAGES ─────────────────────── */
-.info-page { max-width: 800px; margin: 0 auto; padding-bottom: 40px; }
+.info-page { max-width: 100%; margin: 0 auto; padding-bottom: 40px; }
 .info-page h1 { font-size: 32px; font-weight: 800; margin-bottom: 6px; color: #fff; }
 .info-page h2 {
   font-size: 20px;
@@ -1915,7 +1916,8 @@ a:hover { text-decoration: underline; }
 }
 
 .footer-container {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1.5fr;
@@ -2051,7 +2053,8 @@ a:hover { text-decoration: underline; }
 }
 
 .footer-bottom {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 100%;
   margin: 40px auto 0;
   padding-top: 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
