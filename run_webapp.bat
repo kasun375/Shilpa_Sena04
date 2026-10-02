@@ -7,12 +7,16 @@ echo.
 
 cd /d "%~dp0Shilpa_Sena\webapp"
 
-echo Launching Web Browser at http://localhost:8080 ...
-timeout /t 2 /nobreak >nul
-start http://localhost:8080
+:: Launch browser after 2 second delay to ensure server is listening
+start "" cmd /c "ping 127.0.0.1 -n 3 >nul && start http://localhost:8080"
 
+echo Server running on http://localhost:8080 (Keep this window open)
 echo.
-echo Server running on http://localhost:8080 (Press Ctrl+C to stop)
-echo.
+
 python -m http.server 8080
+if %errorlevel% neq 0 (
+    echo Python command failed, trying py launcher...
+    py -m http.server 8080
+)
+
 pause

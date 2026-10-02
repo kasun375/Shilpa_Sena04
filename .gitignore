@@ -13,6 +13,11 @@ Shilpa_Sena/.pub/
 Shilpa_Sena/build/
 
 # Local IDE and System files
+node_modules/
+Shilpa_Sena/server/node_modules/
+.env
+*.env
+Shilpa_Sena/server/.env
 .idea/
 .vscode/
 .firebase/
