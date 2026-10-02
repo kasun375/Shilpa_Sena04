@@ -227,10 +227,18 @@
       <div id="payment-error" class="auth-error" style="display:none; margin-top: 16px;"></div>
 
       <div id="payment-main-content">
-        <!-- Secure Badge -->
-        <div class="secure-badge">
-          <span class="material-icons-outlined" style="font-size:14px;">lock</span>
-          <span>Stripe Secure 256-Bit SSL Encryption</span>
+        <!-- Secure Badge + Stripe Elements Brand Badges -->
+        <div class="secure-badge" style="display: flex; flex-direction: column; gap: 6px; padding: 12px; text-align: center;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span class="material-icons-outlined" style="font-size:16px; color:#166534;">lock</span>
+            <strong style="font-size:12px; color:#166534;">Stripe Elements 256-Bit SSL Encrypted</strong>
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: center; opacity: 0.9; margin-top: 4px;">
+            <span style="font-size: 10px; font-weight: 900; background: #1a1f71; color: #fff; padding: 3px 8px; border-radius: 4px; font-family: sans-serif; letter-spacing: 0.5px;">VISA</span>
+            <span style="font-size: 10px; font-weight: 900; background: #eb001b; color: #fff; padding: 3px 8px; border-radius: 4px; font-family: sans-serif; letter-spacing: 0.5px;">MC</span>
+            <span style="font-size: 10px; font-weight: 900; background: #006fcf; color: #fff; padding: 3px 8px; border-radius: 4px; font-family: sans-serif; letter-spacing: 0.5px;">AMEX</span>
+            <span style="font-size: 10px; font-weight: 900; background: #f97316; color: #fff; padding: 3px 8px; border-radius: 4px; font-family: sans-serif; letter-spacing: 0.5px;">DISCOVER</span>
+          </div>
         </div>
 
         <!-- Card Payment Form -->
