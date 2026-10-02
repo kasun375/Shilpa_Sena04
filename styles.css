@@ -804,6 +804,93 @@ a:hover { text-decoration: underline; }
   box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   animation: slideUp 0.35s var(--ease);
 }
+
+/* ── MODERN & WHITE PAYMENT CARD LOOK ──────────────────────── */
+.auth-card.payment-card {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.payment-card .auth-close {
+  color: #64748B !important;
+}
+.payment-card .auth-close:hover {
+  color: #0F172A !important;
+}
+
+.payment-card .payment-header {
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+}
+.payment-card .payment-title {
+  color: #0F172A !important;
+  font-size: 20px;
+  font-weight: 700;
+}
+.payment-card .payment-course-title {
+  color: #64748B !important;
+  font-size: 13px;
+  margin-top: 2px;
+}
+.payment-card .payment-course-price {
+  color: #0083D2 !important;
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.payment-card .secure-badge {
+  background: #F0FDF4 !important;
+  border: 1px solid #BBF7D0 !important;
+  border-radius: 12px;
+}
+
+.payment-card .input-group input {
+  background: #F8FAFC !important;
+  border: 1px solid #CBD5E1 !important;
+  color: #0F172A !important;
+  font-weight: 500;
+}
+.payment-card .input-group input::placeholder {
+  color: #94A3B8 !important;
+}
+.payment-card .input-group input:focus {
+  border-color: #0083D2 !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 0 0 3px rgba(0, 131, 210, 0.15) !important;
+}
+.payment-card .input-icon {
+  color: #64748B !important;
+}
+
+.payment-card #btn-pay-now {
+  background: #0F172A !important;
+  color: #FFFFFF !important;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 15px;
+}
+.payment-card #btn-pay-now:hover {
+  background: #1E293B !important;
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.3) !important;
+}
+
+.payment-card #payment-processing strong {
+  color: #0F172A !important;
+}
+.payment-card #payment-processing p {
+  color: #64748B !important;
+}
+.payment-card #payment-success h3 {
+  color: #0F172A !important;
+}
+.payment-card #payment-success p {
+  color: #64748B !important;
+}
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
