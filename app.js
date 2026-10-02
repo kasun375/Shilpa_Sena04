@@ -1691,7 +1691,7 @@ function renderAdmin() {
               </div>
               <div class="input-group">
                 <span class="material-icons-outlined input-icon">sell</span>
-                <input type="number" step="0.01" id="admin-course-price" placeholder="Price (USD)" required min="0">
+                <input type="number" step="0.01" id="admin-course-price" placeholder="Monthly Price (Rs.)" required min="0">
               </div>
               <button type="submit" class="btn-primary btn-full">
                 <span class="material-icons-outlined">add</span> Publish Course
@@ -2387,12 +2387,14 @@ function renderWelcomePage(targetRoute) {
 
 // --- Stripe configuration mirroring stripe_config.dart ---
 const stripeConfig = {
-  useLiveMode: false, // Set to false by default for web app demo/test mode; set to true when real live keys are provided
+  useLiveMode: true,
+  // Primary backend URL set to your deployed Render service
+  backendUrl: window.location.origin.includes('localhost') ? 'http://localhost:3000' : 'https://shilpa-sena-backend.onrender.com',
   testPublishableKey: 'pk_test_51TepX9PiY8ODIKHWGRvzRAbZaXdjdhq1IHHEgXQeUH9xujMbNSX1vunQJ0L3yQP1fh8iRixeQ0ogliT1N2Se3Mdj00qeXx4Fyo',
   testSecretKey: 'YOUR_STRIPE_TEST_SECRET_KEY',
   livePublishableKey: 'pk_live_51Ted5APDNJFdc8fiVuKPhOpSNZblzFGXW9FSUEUiOdC5YWgplyJ23EHagAyJqN2GOn3HXl4uMeYXsGhDLOWYFizC00hUBu6tBU',
   liveSecretKey: 'YOUR_STRIPE_LIVE_SECRET_KEY',
-  defaultCurrency: 'usd',
+  defaultCurrency: 'lkr',
   get publishableKey() { return this.useLiveMode ? this.livePublishableKey : this.testPublishableKey; },
   get secretKey() { return this.useLiveMode ? this.liveSecretKey : this.testSecretKey; }
 };
@@ -2504,12 +2506,12 @@ function setupPaymentInputFormatters() {
   inputFormattersBound = true;
 }
 
-// REST Stripe Payment logic mirroring StripeService.processPayment
+// REST Stripe Payment logic using Backend Payment Server
 async function processStripePayment({ cardNumber, expMonth, expYear, cvc, amount }) {
   const currentSecretKey = stripeConfig.secretKey;
   const isPlaceholderKey = !currentSecretKey || currentSecretKey.includes('YOUR_STRIPE_') || currentSecretKey.startsWith('YOUR_STRIPE');
 
-  // If using placeholder key or test mode, safely simulate transaction success
+  // If test mode or placeholder key
   if (!stripeConfig.useLiveMode || isPlaceholderKey) {
     console.log('Stripe (Simulation/Test Mode): Simulating successful card payment processing...');
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -2527,61 +2529,22 @@ async function processStripePayment({ cardNumber, expMonth, expYear, cvc, amount
       cleanExpYear = '20' + cleanExpYear;
     }
     const cleanCvc = cvc.trim();
-    const amountInCents = Math.round(amount * 100);
+    const rawAmount = parseFloat(amount) || 10.0;
+
+    console.log('Stripe: Tokenizing card details using publishable key...');
     
-    let token;
-    
-    if (!stripeConfig.useLiveMode) {
-      // In test mode, map card prefix to standard test tokens
-      if (cleanCardNumber.startsWith('4')) {
-        token = 'tok_visa';
-      } else if (cleanCardNumber.startsWith('5')) {
-        token = 'tok_mastercard';
-      } else if (cleanCardNumber.startsWith('37') || cleanCardNumber.startsWith('34')) {
-        token = 'tok_amex';
-      } else if (cleanCardNumber.startsWith('6')) {
-        token = 'tok_discover';
-      } else {
-        token = 'tok_visa';
-      }
-      console.log('Stripe (Test Mode): Mapping card to test token ' + token);
-    } else {
-      // In live mode, tokenize card details
-      console.log('Stripe (Live Mode): Tokenizing card details...');
-      
-      const formData = new URLSearchParams();
-      formData.append('card[number]', cleanCardNumber);
-      formData.append('card[exp_month]', cleanExpMonth);
-      formData.append('card[exp_year]', cleanExpYear);
-      formData.append('card[cvc]', cleanCvc);
-      
-      const tokenResponse = await fetch('https://api.stripe.com/v1/tokens', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${stripeConfig.publishableKey}`,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: formData
-      });
-      
-      const tokenData = await tokenResponse.json();
-      if (!tokenResponse.ok) {
-        const errorMsg = tokenData.error?.message || 'Failed to tokenize card.';
-        return { success: false, errorMessage: errorMsg };
-      }
-      token = tokenData.id;
-    }
-    
-    // Create Payment Method
-    console.log('Stripe: Creating Payment Method from token...');
+    // 1. Create PaymentMethod on client-side using Publishable Key
     const pmFormData = new URLSearchParams();
     pmFormData.append('type', 'card');
-    pmFormData.append('card[token]', token);
+    pmFormData.append('card[number]', cleanCardNumber);
+    pmFormData.append('card[exp_month]', cleanExpMonth);
+    pmFormData.append('card[exp_year]', cleanExpYear);
+    pmFormData.append('card[cvc]', cleanCvc);
     
     const pmResponse = await fetch('https://api.stripe.com/v1/payment_methods', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${stripeConfig.secretKey}`,
+        'Authorization': `Bearer ${stripeConfig.publishableKey}`,
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: pmFormData
@@ -2589,22 +2552,61 @@ async function processStripePayment({ cardNumber, expMonth, expYear, cvc, amount
     
     const pmData = await pmResponse.json();
     if (!pmResponse.ok) {
-      const errorMsg = pmData.error?.message || 'Failed to create payment method.';
+      let errorMsg = pmData.error?.message || 'Failed to process card details.';
+      if (pmData.error?.decline_code === 'live_mode_test_card') {
+        errorMsg = 'Live Mode Active: Test cards (e.g. 4242...) cannot be used in Live Mode. Please use a real credit/debit card.';
+      }
       return { success: false, errorMessage: errorMsg };
     }
     
     const paymentMethodId = pmData.id;
-    console.log('Stripe: Payment Method created: ' + paymentMethodId);
+    console.log('Stripe: PaymentMethod created: ' + paymentMethodId);
     
-    // Create and Confirm Payment Intent
-    console.log('Stripe: Creating and Confirming Payment Intent...');
+    // 2. Call Backend Payment Server (/create-payment-intent)
+    console.log(`Stripe: Sending request to Backend Server (${stripeConfig.backendUrl})...`);
+    
+    try {
+      const serverResponse = await fetch(`${stripeConfig.backendUrl}/create-payment-intent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          paymentMethodId: paymentMethodId,
+          amount: rawAmount,
+          currency: stripeConfig.defaultCurrency || 'usd',
+          courseTitle: selectedPaymentCourseTitle,
+          studentEmail: currentUser?.email || 'No Email'
+        })
+      });
+
+      const contentType = serverResponse.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const serverData = await serverResponse.json();
+        if (serverResponse.ok && serverData.success) {
+          console.log('Stripe Backend: Payment Intent Succeeded! ID: ' + serverData.paymentIntentId);
+          return { success: true, paymentIntentId: serverData.paymentIntentId };
+        } else if (serverData.error) {
+          let errorMsg = serverData.error;
+          if (errorMsg.includes('live_mode_test_card') || errorMsg.includes('test card')) {
+            errorMsg = 'Live Mode Active: Stripe rejected this test card. Please use a real Visa/Mastercard/Amex card.';
+          }
+          return { success: false, errorMessage: errorMsg };
+        }
+      } else {
+        console.warn('Backend server returned non-JSON response (possibly HTML web page instead of API endpoint).');
+      }
+    } catch (backendErr) {
+      console.warn('Backend server connection error:', backendErr);
+    }
+
+    // 3. Fallback direct call if backend is initializing or unreachable
+    console.log('Stripe: Processing via direct API...');
     const piFormData = new URLSearchParams();
-    piFormData.append('amount', amountInCents.toString());
-    piFormData.append('currency', stripeConfig.defaultCurrency.toLowerCase());
+    piFormData.append('amount', Math.max(50, Math.round(rawAmount * 100)).toString());
+    piFormData.append('currency', (stripeConfig.defaultCurrency || 'usd').toLowerCase());
     piFormData.append('payment_method', paymentMethodId);
     piFormData.append('confirm', 'true');
-    piFormData.append('automatic_payment_methods[enabled]', 'true');
-    piFormData.append('automatic_payment_methods[allow_redirects]', 'never');
     
     const piResponse = await fetch('https://api.stripe.com/v1/payment_intents', {
       method: 'POST',
@@ -2617,29 +2619,25 @@ async function processStripePayment({ cardNumber, expMonth, expYear, cvc, amount
     
     const piData = await piResponse.json();
     if (!piResponse.ok) {
-      const errorMsg = piData.error?.message || 'Payment authorization failed.';
+      let errorMsg = piData.error?.message || 'Payment authorization failed.';
+      if (piData.error?.decline_code === 'live_mode_test_card') {
+        errorMsg = 'Live Mode Active: Stripe rejected this test card. Please use a real Visa/Mastercard/Amex card.';
+      }
       return { success: false, errorMessage: errorMsg };
     }
     
     const status = piData.status;
     const intentId = piData.id;
     
-    if (status === 'succeeded') {
+    if (status === 'succeeded' || status === 'requires_capture') {
       console.log('Stripe: Payment Succeeded! Intent: ' + intentId);
       return { success: true, paymentIntentId: intentId };
     } else {
-      console.log('Stripe: Payment Status was ' + status + ', expected succeeded.');
-      return { success: false, errorMessage: 'Payment status is: ' + status + '. Complete authentication if required.' };
+      return { success: false, errorMessage: 'Payment status: ' + status };
     }
   } catch (e) {
-    console.error('Stripe Service Exception:', e);
-    // Graceful fallback for test/demo mode or network errors
-    if (!stripeConfig.useLiveMode || isPlaceholderKey) {
-      console.warn('Stripe API fetch failed. Falling back to simulated success in test/demo mode.');
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      return { success: true, paymentIntentId: 'test_cors_bypass_' + Date.now() };
-    }
-    return { success: false, errorMessage: 'An unexpected error occurred while communicating with Stripe: ' + e.message };
+    console.error('Stripe Exception:', e);
+    return { success: false, errorMessage: 'Payment processing error: ' + e.message };
   }
 }
 
@@ -2724,7 +2722,7 @@ window.handlePaymentSubmit = async function(e) {
   if (result.success) {
     try {
       await enrollUserImmediately(selectedPaymentCourseId, selectedPaymentCourseTitle, result.paymentIntentId, 'stripe');
-      showPaymentSuccessView();
+      showPaymentSuccessView(result.paymentIntentId);
     } catch (err) {
       document.getElementById('payment-processing').style.display = 'none';
       document.getElementById('payment-main-content').style.display = 'block';
@@ -2745,16 +2743,25 @@ function showPaymentError(msg) {
   errorEl.style.display = 'block';
 }
 
-function showPaymentSuccessView() {
+function showPaymentSuccessView(intentId) {
   document.getElementById('payment-processing').style.display = 'none';
-  document.getElementById('payment-success').style.display = 'block';
+  const successEl = document.getElementById('payment-success');
+  
+  if (intentId) {
+    const pTag = successEl.querySelector('p');
+    if (pTag) {
+      pTag.innerHTML = `Your enrollment is now complete.<br><span style="font-family:monospace; font-size:11px; opacity:0.8;">Ref: ${intentId}</span>`;
+    }
+  }
+  
+  successEl.style.display = 'block';
   
   // Re-render hash to show purchased state (Materials buttons, etc.)
   const hash = window.location.hash || '#home';
   renderPage(hash);
   
-  // Close modal after 2 seconds
+  // Close modal after 3 seconds
   setTimeout(() => {
     hidePaymentModal();
-  }, 2000);
+  }, 3000);
 }
