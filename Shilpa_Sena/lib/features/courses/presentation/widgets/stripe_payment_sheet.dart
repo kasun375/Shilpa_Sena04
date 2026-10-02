@@ -96,34 +96,26 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
       String intentId = '';
       bool paymentSuccess = false;
 
-      try {
-        final backendUri = Uri.parse('https://shilpa-sena-backend.onrender.com/create-payment-intent');
-        final serverResponse = await http.post(
-          backendUri,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'paymentMethodId': paymentMethodId,
-            'amount': widget.course.price,
-            'currency': StripeConfig.defaultCurrency,
-            'courseTitle': widget.course.title,
-            'studentEmail': user?.email ?? 'No Email',
-          }),
-        );
+      final backendUri = Uri.parse('https://shilpa-sena-backend.onrender.com/create-payment-intent');
+      final serverResponse = await http.post(
+        backendUri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'paymentMethodId': paymentMethodId,
+          'amount': widget.course.price < 200 ? 200.0 : widget.course.price,
+          'currency': StripeConfig.defaultCurrency,
+          'courseTitle': widget.course.title,
+          'studentEmail': user?.email ?? 'No Email',
+        }),
+      );
 
-        if (serverResponse.statusCode == 200) {
-          final serverData = jsonDecode(serverResponse.body);
-          if (serverData['success'] == true) {
-            intentId = serverData['paymentIntentId'] as String;
-            paymentSuccess = true;
-          }
-        }
-      } catch (backendErr) {
-        debugPrint('Backend server error: $backendErr');
-      }
-
-      if (!paymentSuccess) {
-        intentId = 'pi_live_${DateTime.now().millisecondsSinceEpoch}';
+      final serverData = jsonDecode(serverResponse.body);
+      if (serverResponse.statusCode == 200 && serverData['success'] == true) {
+        intentId = serverData['paymentIntentId'] as String;
         paymentSuccess = true;
+      } else {
+        final errText = serverData['error'] ?? 'Payment failed on Stripe. Please check card details.';
+        throw errText;
       }
 
       if (paymentSuccess && mounted) {

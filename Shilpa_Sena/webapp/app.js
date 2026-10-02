@@ -2573,67 +2573,27 @@ async function processStripePayment({ cardNumber, expMonth, expYear, cvc, amount
         },
         body: JSON.stringify({
           paymentMethodId: paymentMethodId,
-          amount: rawAmount,
-          currency: stripeConfig.defaultCurrency || 'usd',
+          amount: rawAmount < 200 ? 200 : rawAmount,
+          currency: stripeConfig.defaultCurrency || 'lkr',
           courseTitle: selectedPaymentCourseTitle,
           studentEmail: currentUser?.email || 'No Email'
         })
       });
 
-      const contentType = serverResponse.headers.get('content-type') || '';
-      if (contentType.includes('application/json')) {
-        const serverData = await serverResponse.json();
-        if (serverResponse.ok && serverData.success) {
-          console.log('Stripe Backend: Payment Intent Succeeded! ID: ' + serverData.paymentIntentId);
-          return { success: true, paymentIntentId: serverData.paymentIntentId };
-        } else if (serverData.error) {
-          let errorMsg = serverData.error;
-          if (errorMsg.includes('live_mode_test_card') || errorMsg.includes('test card')) {
-            errorMsg = 'Live Mode Active: Stripe rejected this test card. Please use a real Visa/Mastercard/Amex card.';
-          }
-          return { success: false, errorMessage: errorMsg };
-        }
+      const serverData = await serverResponse.json();
+      if (serverResponse.ok && serverData.success) {
+        console.log('Stripe Backend: Payment Intent Succeeded! ID: ' + serverData.paymentIntentId);
+        return { success: true, paymentIntentId: serverData.paymentIntentId };
       } else {
-        console.warn('Backend server returned non-JSON response (possibly HTML web page instead of API endpoint).');
+        let errorMsg = serverData.error || 'Payment failed on Stripe. Please check card details.';
+        if (errorMsg.includes('live_mode_test_card') || errorMsg.includes('test card')) {
+          errorMsg = 'Live Mode Active: Stripe rejected this test card. Please use a real Visa/Mastercard/Amex card.';
+        }
+        return { success: false, errorMessage: errorMsg };
       }
     } catch (backendErr) {
-      console.warn('Backend server connection error:', backendErr);
-    }
-
-    // 3. Fallback direct call if backend is initializing or unreachable
-    console.log('Stripe: Processing via direct API...');
-    const piFormData = new URLSearchParams();
-    piFormData.append('amount', Math.max(50, Math.round(rawAmount * 100)).toString());
-    piFormData.append('currency', (stripeConfig.defaultCurrency || 'usd').toLowerCase());
-    piFormData.append('payment_method', paymentMethodId);
-    piFormData.append('confirm', 'true');
-    
-    const piResponse = await fetch('https://api.stripe.com/v1/payment_intents', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${stripeConfig.secretKey}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: piFormData
-    });
-    
-    const piData = await piResponse.json();
-    if (!piResponse.ok) {
-      let errorMsg = piData.error?.message || 'Payment authorization failed.';
-      if (piData.error?.decline_code === 'live_mode_test_card') {
-        errorMsg = 'Live Mode Active: Stripe rejected this test card. Please use a real Visa/Mastercard/Amex card.';
-      }
-      return { success: false, errorMessage: errorMsg };
-    }
-    
-    const status = piData.status;
-    const intentId = piData.id;
-    
-    if (status === 'succeeded' || status === 'requires_capture') {
-      console.log('Stripe: Payment Succeeded! Intent: ' + intentId);
-      return { success: true, paymentIntentId: intentId };
-    } else {
-      return { success: false, errorMessage: 'Payment status: ' + status };
+      console.error('Backend server connection error:', backendErr);
+      return { success: false, errorMessage: 'Failed to connect to payment server. Please try again.' };
     }
   } catch (e) {
     console.error('Stripe Exception:', e);
