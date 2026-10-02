@@ -386,25 +386,7 @@ a:hover { text-decoration: underline; }
     gap: 16px;
   }
   .qr-container {
-    flex: none;
-    width: 100%;
-    flex-direction: row;
-    align-items: center;
-    text-align: left;
-    gap: 20px;
-    padding: 20px;
-  }
-  .qr-image {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 0;
-  }
-  .qr-details h4 {
-    font-size: 15px;
-    margin-bottom: 4px;
-  }
-  .qr-details p {
-    font-size: 11px;
+    display: none !important;
   }
 }
 .carousel-track {
