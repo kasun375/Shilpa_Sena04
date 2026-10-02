@@ -165,47 +165,28 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final cardNumberText = _cardNumberController.text.isEmpty
-        ? '•••• •••• •••• ••••'
-        : _cardNumberController.text;
-    final cardHolderText = _cardHolderController.text.isEmpty
-        ? 'YOUR NAME HERE'
-        : _cardHolderController.text.toUpperCase();
-    final cardExpiryText = _cardExpiryController.text.isEmpty
-        ? 'MM/YY'
-        : _cardExpiryController.text;
-
     return Container(
       width: double.infinity,
       constraints: const BoxConstraints(maxWidth: 420),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: DesignConstants.primaryCyan.withOpacity(0.3),
-          width: 1.5,
+          color: const Color(0xFFE2E8F0),
+          width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: DesignConstants.primaryCyan.withOpacity(0.12),
-            blurRadius: 25,
-            spreadRadius: 2,
-          ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.5),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 30,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.all(24),
           child: Form(
             key: _formKey,
             child: Column(
@@ -221,33 +202,34 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: DesignConstants.primaryCyan.withOpacity(0.15),
+                            color: const Color(0xFF0083D2).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Icon(
                             Icons.lock_outline,
-                            color: DesignConstants.primaryCyan,
+                            color: Color(0xFF0083D2),
                             size: 18,
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
                             Text(
-                              'Checkout',
+                              'Secure Checkout',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Color(0xFF0F172A),
                                 fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.3,
                               ),
                             ),
                             Text(
                               'Stripe 256-Bit SSL Encrypted',
                               style: TextStyle(
-                                color: Colors.white54,
+                                color: Color(0xFF64748B),
                                 fontSize: 11,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -255,7 +237,7 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
                       ],
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white70),
+                      icon: const Icon(Icons.close, color: Color(0xFF64748B)),
                       onPressed: () => Navigator.pop(context),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -264,120 +246,13 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
                 ),
                 const SizedBox(height: 18),
 
-                // Live Interactive Credit Card Preview Widget
-                Container(
-                  width: double.infinity,
-                  height: 170,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF0052D4), Color(0xFF4364F7), Color(0xFF6FB1FC)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF4364F7).withOpacity(0.35),
-                        blurRadius: 15,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Icon(Icons.nfc, color: Colors.white70, size: 28),
-                          Text(
-                            'VISA / MASTERCARD',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        cardNumberText,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 2.2,
-                          fontFamily: 'monospace',
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'CARDHOLDER',
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.65),
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                cardHolderText,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'EXPIRES',
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.65),
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                cardExpiryText,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-
                 // Order summary banner
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.04),
+                    color: const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white.withOpacity(0.08)),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -391,14 +266,19 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
+                                color: Color(0xFF0F172A),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
                               ),
                             ),
+                            const SizedBox(height: 2),
                             const Text(
-                              'Monthly Subscription',
-                              style: TextStyle(color: Colors.white54, fontSize: 11),
+                              'Monthly Course Access',
+                              style: TextStyle(
+                                color: Color(0xFF64748B),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ],
                         ),
@@ -406,11 +286,45 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
                       Text(
                         widget.course.formattedMonthlyPrice,
                         style: const TextStyle(
-                          color: DesignConstants.primaryCyan,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          color: Color(0xFF0083D2),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 17,
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Security & Brand Badges Bar
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFBBF7D0)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.verified, color: Color(0xFF166534), size: 14),
+                      const SizedBox(width: 6),
+                      const Text(
+                        'Accepted Cards:',
+                        style: TextStyle(
+                          color: Color(0xFF166534),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildBrandBadge('VISA', const Color(0xFF1A1F71)),
+                      const SizedBox(width: 4),
+                      _buildBrandBadge('MC', const Color(0xFFEB001B)),
+                      const SizedBox(width: 4),
+                      _buildBrandBadge('AMEX', const Color(0xFF006FCF)),
+                      const SizedBox(width: 4),
+                      _buildBrandBadge('DISCOVER', const Color(0xFFF97316)),
                     ],
                   ),
                 ),
@@ -423,21 +337,22 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 14),
                     decoration: BoxDecoration(
-                      color: DesignConstants.notificationRed.withOpacity(0.12),
+                      color: const Color(0xFFFEF2F2),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: DesignConstants.notificationRed.withOpacity(0.3)),
+                      border: Border.all(color: const Color(0xFFFCA5A5)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline, color: DesignConstants.notificationRed, size: 20),
+                        const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 20),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             _errorMessage!,
                             style: const TextStyle(
-                              color: DesignConstants.notificationRed,
+                              color: Color(0xFFDC2626),
                               fontSize: 12,
                               height: 1.3,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -504,14 +419,14 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
                 // Pay Now Button
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
+                  height: 52,
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _processPayment,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: DesignConstants.primaryCyan,
-                      foregroundColor: Colors.black,
-                      elevation: 4,
-                      shadowColor: DesignConstants.primaryCyan.withOpacity(0.4),
+                      backgroundColor: const Color(0xFF0F172A),
+                      foregroundColor: Colors.white,
+                      elevation: 2,
+                      shadowColor: Colors.black.withOpacity(0.2),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -522,20 +437,21 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation(Colors.black),
+                              valueColor: AlwaysStoppedAnimation(Colors.white),
                             ),
                           )
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.lock, size: 18, color: Colors.black),
+                              const Icon(Icons.lock, size: 18, color: Colors.white),
                               const SizedBox(width: 8),
                               Text(
                                 'Pay ${widget.course.formattedMonthlyPrice} Now',
                                 style: const TextStyle(
                                   fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.2,
+                                  color: Colors.white,
                                 ),
                               ),
                             ],
@@ -545,6 +461,25 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBrandBadge(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 9,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.5,
         ),
       ),
     );
@@ -565,35 +500,36 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
       keyboardType: keyboardType,
       obscureText: obscureText,
       inputFormatters: inputFormatters?.cast(),
-      style: const TextStyle(color: Colors.white, fontSize: 14),
+      style: const TextStyle(color: Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.w500),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.25), fontSize: 13),
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 13),
-        prefixIcon: Icon(icon, color: DesignConstants.primaryCyan, size: 18),
+        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+        labelStyle: const TextStyle(color: Color(0xFF475569), fontSize: 13, fontWeight: FontWeight.w600),
+        prefixIcon: Icon(icon, color: const Color(0xFF64748B), size: 18),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
+        fillColor: const Color(0xFFF8FAFC),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: DesignConstants.primaryCyan, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF0083D2), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: DesignConstants.notificationRed),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFDC2626)),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: DesignConstants.notificationRed, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5),
         ),
-        errorStyle: const TextStyle(color: DesignConstants.notificationRed, fontSize: 11),
+        errorStyle: const TextStyle(color: Color(0xFFDC2626), fontSize: 11),
       ),
       validator: validator,
     );
   }
 }
+
