@@ -233,21 +233,21 @@
 
       <div id="payment-main-content">
         <!-- Secure Stripe Badge & Accepted Cards -->
-        <div class="secure-badge" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(99, 91, 255, 0.3); border-radius: 14px; padding: 14px; text-align: center; margin-top: 10px;">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <span class="material-icons-outlined" style="font-size:18px; color:#818cf8;">lock</span>
-            <strong style="font-size:13px; color:#ffffff;">Secure Card Payment</strong>
+        <div class="secure-badge-box">
+          <div class="secure-badge-header">
+            <span class="material-icons-outlined">lock</span>
+            <strong>Secure Card Payment</strong>
           </div>
-          <div style="display: flex; gap: 8px; justify-content: center; opacity: 0.95; margin-top: 8px;">
-            <span style="font-size: 10px; font-weight: 900; background: #1a1f71; color: #fff; padding: 4px 10px; border-radius: 4px; letter-spacing: 0.5px;">VISA</span>
-            <span style="font-size: 10px; font-weight: 900; background: #eb001b; color: #fff; padding: 4px 10px; border-radius: 4px; letter-spacing: 0.5px;">MASTERCARD</span>
-            <span style="font-size: 10px; font-weight: 900; background: #006fcf; color: #fff; padding: 4px 10px; border-radius: 4px; letter-spacing: 0.5px;">AMEX</span>
-            <span style="font-size: 10px; font-weight: 900; background: #f97316; color: #fff; padding: 4px 10px; border-radius: 4px; letter-spacing: 0.5px;">DISCOVER</span>
+          <div class="card-badges-row">
+            <span class="card-badge-chip visa">VISA</span>
+            <span class="card-badge-chip mastercard">MASTERCARD</span>
+            <span class="card-badge-chip amex">AMEX</span>
+            <span class="card-badge-chip discover">DISCOVER</span>
           </div>
         </div>
 
         <!-- Official In-App Stripe Card Payment Form -->
-        <form id="payment-card-form" class="auth-form" onsubmit="handlePaymentSubmit(event)" style="margin-top: 16px;">
+        <form id="payment-card-form" class="auth-form payment-form-wrap" onsubmit="handlePaymentSubmit(event)">
           <div class="input-group">
             <span class="material-icons-outlined input-icon">person_outline</span>
             <input type="text" id="card-holder" placeholder="Cardholder Name" required autocomplete="cc-name">
@@ -256,18 +256,18 @@
             <span class="material-icons-outlined input-icon">credit_card</span>
             <input type="text" id="card-number" placeholder="0000 0000 0000 0000" required autocomplete="cc-number">
           </div>
-          <div class="input-row" style="display: flex; gap: 12px;">
-            <div class="input-group" style="flex: 1;">
+          <div class="input-row">
+            <div class="input-group">
               <span class="material-icons-outlined input-icon">calendar_today</span>
               <input type="text" id="card-expiry" placeholder="MM/YY" required autocomplete="cc-exp">
             </div>
-            <div class="input-group" style="flex: 1;">
+            <div class="input-group">
               <span class="material-icons-outlined input-icon">lock_open</span>
               <input type="password" id="card-cvc" placeholder="123" required autocomplete="cc-csc">
             </div>
           </div>
-          <button type="submit" id="btn-pay-now" class="btn-primary btn-full" style="margin-top: 12px; background: linear-gradient(135deg, #635bff 0%, #4f46e5 100%); font-weight: 700; height: 50px; border-radius: 12px; font-size: 15px; box-shadow: 0 4px 15px rgba(99, 91, 255, 0.4);">
-            <span class="material-icons-outlined" style="vertical-align: middle; margin-right: 6px; font-size: 20px;">lock</span>
+          <button type="submit" id="btn-pay-now" class="btn-primary btn-full pay-now-submit">
+            <span class="material-icons-outlined">lock</span>
             Pay Securely In-App
           </button>
         </form>

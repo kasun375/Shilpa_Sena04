@@ -206,10 +206,36 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(webappPath, 'index.html'));
 });
 
+const { exec } = require('child_process');
+
 // Start Server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
+  const url = `http://localhost:${PORT}`;
   console.log(`=======================================================`);
-  console.log(`🚀 Shilpa Sena Stripe Payment Server running on port ${PORT}`);
+  console.log(`🚀 Shilpa Sena LMS Web App & Backend running on port ${PORT}`);
+  console.log(`🌐 Opening Web Application: ${url}`);
   console.log(`=======================================================`);
+
+  // Auto-open browser when server starts listening
+  const startCmd = process.platform === 'win32' ? `start ${url}` :
+                   process.platform === 'darwin' ? `open ${url}` :
+                   `xdg-open ${url}`;
+  exec(startCmd, (err) => {
+    if (err) console.log(`Please open ${url} manually in your browser.`);
+  });
 });
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`⚠️ Port ${PORT} is already in use. Opening http://localhost:${PORT}...`);
+    const url = `http://localhost:${PORT}`;
+    const startCmd = process.platform === 'win32' ? `start ${url}` :
+                     process.platform === 'darwin' ? `open ${url}` :
+                     `xdg-open ${url}`;
+    exec(startCmd);
+  } else {
+    console.error('Server error:', err);
+  }
+});
+
 
