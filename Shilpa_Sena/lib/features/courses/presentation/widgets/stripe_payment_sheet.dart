@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:exim_graphics_lms/models/course_model.dart';
 import 'package:exim_graphics_lms/features/courses/presentation/providers/database_provider.dart';
 import 'package:exim_graphics_lms/core/config/stripe_config.dart';
-import 'package:exim_graphics_lms/core/theme/design_constants.dart';
 import 'credit_card_input_formatter.dart';
 
 class StripePaymentSheet extends StatefulWidget {
@@ -92,30 +92,108 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
 
       final paymentMethodId = pmData['id'] as String;
 
-      // 2. Call Backend Payment Server
+      // 2. Call Backend Payment Server with Direct Stripe Fallback
       String intentId = '';
       bool paymentSuccess = false;
 
-      final backendUri = Uri.parse('https://shilpa-sena-backend.onrender.com/create-payment-intent');
-      final serverResponse = await http.post(
-        backendUri,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'paymentMethodId': paymentMethodId,
-          'amount': widget.course.price < 200 ? 200.0 : widget.course.price,
-          'currency': StripeConfig.defaultCurrency,
-          'courseTitle': widget.course.title,
-          'studentEmail': user?.email ?? 'No Email',
-        }),
-      );
+      try {
+        final localUri = Uri.parse('http://localhost:3000/create-payment-intent');
+        final renderUri = Uri.parse('https://shilpa-sena-backend.onrender.com/create-payment-intent');
+        
+        http.Response? serverResponse;
+        try {
+          serverResponse = await http.post(
+            localUri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'paymentMethodId': paymentMethodId,
+              'amount': widget.course.price < 200 ? 200.0 : widget.course.price,
+              'currency': StripeConfig.defaultCurrency,
+              'courseTitle': widget.course.title,
+              'studentEmail': user?.email ?? 'No Email',
+            }),
+          ).timeout(const Duration(seconds: 4));
+        } catch (_) {
+          serverResponse = await http.post(
+            renderUri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'paymentMethodId': paymentMethodId,
+              'amount': widget.course.price < 200 ? 200.0 : widget.course.price,
+              'currency': StripeConfig.defaultCurrency,
+              'courseTitle': widget.course.title,
+              'studentEmail': user?.email ?? 'No Email',
+            }),
+          );
+        }
 
-      final serverData = jsonDecode(serverResponse.body);
-      if (serverResponse.statusCode == 200 && serverData['success'] == true) {
-        intentId = serverData['paymentIntentId'] as String;
-        paymentSuccess = true;
-      } else {
-        final errText = serverData['error'] ?? 'Payment failed on Stripe. Please check card details.';
+        if (serverResponse.statusCode == 200 || serverResponse.statusCode == 400) {
+          final serverData = jsonDecode(serverResponse.body);
+          if (serverData['success'] == true) {
+            intentId = serverData['paymentIntentId'] as String;
+            paymentSuccess = true;
+          } else if (serverData['requiresAction'] == true && serverData['redirectUrl'] != null) {
+            final authUrl = Uri.parse(serverData['redirectUrl']);
+            if (await canLaunchUrl(authUrl)) {
+              await launchUrl(authUrl, mode: LaunchMode.inAppBrowserView);
+              throw 'Bank 3D Secure OTP verification required. Please complete OTP authentication inside the in-app view, then try again.';
+            }
+          } else if (serverData['error'] != null) {
+            throw serverData['error'].toString();
+          }
+        }
+      } catch (backendErr) {
+        if (backendErr is String) rethrow;
+        debugPrint('Backend payment server unreachable, trying direct Stripe API fallback: $backendErr');
+      }
+
+      // Fallback: Charge directly via Stripe API if backend is unavailable
+      if (!paymentSuccess && StripeConfig.secretKey.isNotEmpty) {
+        final rawAmount = widget.course.price < 200 ? 200.0 : widget.course.price;
+        final amountInCents = (rawAmount * 100).round();
+        
+        final stripeIntentResponse = await http.post(
+          Uri.parse('https://api.stripe.com/v1/payment_intents'),
+          headers: {
+            'Authorization': 'Bearer ${StripeConfig.secretKey}',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: {
+            'amount': amountInCents.toString(),
+            'currency': StripeConfig.defaultCurrency,
+            'payment_method': paymentMethodId,
+            'confirm': 'true',
+            'description': 'Course Purchase: ${widget.course.title}',
+            'payment_method_types[0]': 'card',
+            'return_url': 'http://localhost:3000/#payment-complete',
+            if (user?.email != null && user!.email!.contains('@')) 'receipt_email': user.email,
+          },
+        );
+
+        final intentData = jsonDecode(stripeIntentResponse.body);
+        if (stripeIntentResponse.statusCode == 200) {
+          if (intentData['status'] == 'succeeded' || intentData['status'] == 'requires_capture') {
+            intentId = intentData['id'] as String;
+            paymentSuccess = true;
+          } else if (intentData['status'] == 'requires_action' &&
+                     intentData['next_action']?['redirect_to_url']?['url'] != null) {
+            final authUrl = Uri.parse(intentData['next_action']['redirect_to_url']['url']);
+            if (await canLaunchUrl(authUrl)) {
+              await launchUrl(authUrl, mode: LaunchMode.inAppBrowserView);
+              throw 'Bank 3D Secure OTP verification required. Please complete OTP authentication inside the in-app view, then try again.';
+            }
+          }
+        }
+
+        var errText = intentData['error']?['message'] ?? 'Payment failed on Stripe. Please check card details.';
+        if (errText.contains('live_mode_test_card') || errText.contains('test card')) {
+          errText = 'Live Mode Active: Test cards (4242...) are declined in Live Mode. Please use a real Visa/Mastercard credit or debit card.';
+        }
         throw errText;
+      }
+
+      if (!paymentSuccess) {
+        throw 'Payment server connection failed. Please check card details or try again.';
       }
 
       if (paymentSuccess && mounted) {
@@ -167,11 +245,11 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
           color: const Color(0xFFE2E8F0),
           width: 1.0,
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color: Color(0x1F000000),
             blurRadius: 30,
-            offset: const Offset(0, 12),
+            offset: Offset(0, 12),
           ),
         ],
       ),
@@ -194,7 +272,7 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF0083D2).withOpacity(0.1),
+                            color: const Color(0x1A0083D2),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Icon(
@@ -217,7 +295,7 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
                               ),
                             ),
                             Text(
-                              'Stripe 256-Bit SSL Encrypted',
+                              'Secure Payment',
                               style: TextStyle(
                                 color: Color(0xFF64748B),
                                 fontSize: 11,
@@ -290,23 +368,23 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
 
                 // Security & Brand Badges Bar
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF0FDF4),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: const Color(0xFFBBF7D0)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.verified, color: Color(0xFF166534), size: 14),
+                      const Icon(Icons.verified, color: Color(0xFF166534), size: 16),
                       const SizedBox(width: 6),
                       const Text(
-                        'Accepted Cards:',
+                        'Secure Payment:',
                         style: TextStyle(
                           color: Color(0xFF166534),
                           fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -418,7 +496,7 @@ class _StripePaymentSheetState extends State<StripePaymentSheet> {
                       backgroundColor: const Color(0xFF0F172A),
                       foregroundColor: Colors.white,
                       elevation: 2,
-                      shadowColor: Colors.black.withOpacity(0.2),
+                      shadowColor: const Color(0x33000000),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),

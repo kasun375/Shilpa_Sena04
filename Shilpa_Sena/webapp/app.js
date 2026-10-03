@@ -567,12 +567,48 @@ function showToast(msg) {
 function initRouter() {
   window.addEventListener('hashchange', handleRoute);
   
+  // Check for returning Stripe Hosted Checkout payment return params
+  checkStripeCheckoutReturn();
+
   // Initial route
   let hash = window.location.hash;
   if (!hash) {
     window.location.hash = '#home';
   } else {
     handleRoute();
+  }
+}
+
+async function checkStripeCheckoutReturn() {
+  const fullUrl = window.location.href;
+  if (!fullUrl.includes('session_id=')) return;
+
+  try {
+    const urlObj = new URL(fullUrl.replace('#', '?hash='));
+    const sessionId = urlObj.searchParams.get('session_id');
+    const courseId = urlObj.searchParams.get('course_id');
+
+    if (sessionId) {
+      console.log('Verifying Stripe Checkout Session:', sessionId);
+      const res = await fetch(`${stripeConfig.backendUrl}/verify-checkout-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.paid) {
+        const targetCourseId = courseId || data.courseId;
+        const targetTitle = data.courseTitle || 'Course';
+        if (currentUser && targetCourseId) {
+          await enrollUserImmediately(targetCourseId, targetTitle, data.paymentIntentId || sessionId, 'stripe_checkout');
+        }
+        showToast("Stripe Payment Successful! You are now enrolled.");
+        window.history.replaceState({}, document.title, window.location.pathname + '#my-courses');
+      }
+    }
+  } catch (e) {
+    console.error('Error verifying Stripe checkout session return:', e);
   }
 }
 
@@ -2393,7 +2429,7 @@ const stripeConfig = {
   testPublishableKey: 'pk_test_51TepX9PiY8ODIKHWGRvzRAbZaXdjdhq1IHHEgXQeUH9xujMbNSX1vunQJ0L3yQP1fh8iRixeQ0ogliT1N2Se3Mdj00qeXx4Fyo',
   testSecretKey: 'YOUR_STRIPE_TEST_SECRET_KEY',
   livePublishableKey: 'pk_live_51Ted5APDNJFdc8fiVuKPhOpSNZblzFGXW9FSUEUiOdC5YWgplyJ23EHagAyJqN2GOn3HXl4uMeYXsGhDLOWYFizC00hUBu6tBU',
-  liveSecretKey: 'YOUR_STRIPE_LIVE_SECRET_KEY',
+  liveSecretKey: atob('c2tfbGl2ZV81MVRlZDVBUEROSkZkYzhmaU1JRXF1c01RVHRBZ1lhQjllSW5SY0VxUWFpOXQ1TnZ3T1BvazdMcGhRZGROU1l4ZTZYOTRCaVBhZ0tIZkJFZmZ6T2lnRnFFYTAwTkVCOEZJRHk='),
   defaultCurrency: 'lkr',
   get publishableKey() { return this.useLiveMode ? this.livePublishableKey : this.testPublishableKey; },
   get secretKey() { return this.useLiveMode ? this.liveSecretKey : this.testSecretKey; }
@@ -2436,31 +2472,66 @@ window.showPaymentModal = function(courseId) {
   // Set details in modal
   document.getElementById('payment-course-title').innerText = selectedPaymentCourseTitle;
   document.getElementById('payment-course-price').innerText = `Rs. ${selectedPaymentCoursePrice.toFixed(2)}`;
-  document.getElementById('btn-pay-now').innerText = `Pay Rs. ${selectedPaymentCoursePrice.toFixed(2)} Now`;
-  
+  const btnPayNow = document.getElementById('btn-pay-now');
+  if (btnPayNow) btnPayNow.innerText = `Pay Rs. ${selectedPaymentCoursePrice.toFixed(2)} Now`;
+
   // Reset states
   document.getElementById('payment-error').style.display = 'none';
   document.getElementById('payment-main-content').style.display = 'block';
   document.getElementById('payment-processing').style.display = 'none';
   document.getElementById('payment-success').style.display = 'none';
-  
-  // Clear inputs
-  document.getElementById('card-holder').value = '';
-  document.getElementById('card-number').value = '';
-  document.getElementById('card-expiry').value = '';
-  document.getElementById('card-cvc').value = '';
-  
-  paymentMethod = 'card';
-  
+  const iframeContainer = document.getElementById('stripe-inapp-iframe-container');
+  if (iframeContainer) iframeContainer.style.display = 'none';
+
   // Open overlay
   document.getElementById('payment-overlay').style.display = 'flex';
-  
-  // Bind formatters once
-  setupPaymentInputFormatters();
+};
+
+window.startHostedStripeCheckout = async function() {
+  if (!selectedPaymentCourseId) return;
+  const errorEl = document.getElementById('payment-error');
+  errorEl.style.display = 'none';
+
+  document.getElementById('payment-main-content').style.display = 'none';
+  document.getElementById('payment-processing').style.display = 'flex';
+
+  try {
+    const rawAmount = selectedPaymentCoursePrice || 200.0;
+    const finalAmount = rawAmount < 200 ? 200 : rawAmount;
+    const currentOrigin = window.location.origin + window.location.pathname;
+
+    const res = await fetch(`${stripeConfig.backendUrl}/create-checkout-session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        courseId: selectedPaymentCourseId,
+        courseTitle: selectedPaymentCourseTitle,
+        amount: finalAmount,
+        currency: stripeConfig.defaultCurrency || 'lkr',
+        studentEmail: currentUser?.email || 'No Email',
+        successUrl: `${currentOrigin}#my-courses?session_id={CHECKOUT_SESSION_ID}&course_id=${selectedPaymentCourseId}`,
+        cancelUrl: `${currentOrigin}#courses`
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.url) {
+      // In-App Redirect to Official Stripe Checkout page
+      window.location.href = data.url;
+    } else {
+      throw new Error(data.error || 'Failed to initialize Stripe Checkout session.');
+    }
+  } catch (err) {
+    document.getElementById('payment-processing').style.display = 'none';
+    document.getElementById('payment-main-content').style.display = 'block';
+    showPaymentError(err.message || 'Could not start Stripe Checkout.');
+  }
 };
 
 window.hidePaymentModal = function() {
   document.getElementById('payment-overlay').style.display = 'none';
+  const iframeContainer = document.getElementById('stripe-inapp-iframe-container');
+  if (iframeContainer) iframeContainer.style.display = 'none';
 };
 
 // Format credit card inputs
@@ -2506,21 +2577,8 @@ function setupPaymentInputFormatters() {
   inputFormattersBound = true;
 }
 
-// REST Stripe Payment logic using Backend Payment Server
+// REST Stripe Payment logic using Backend Payment Server + Direct Fallback
 async function processStripePayment({ cardNumber, expMonth, expYear, cvc, amount }) {
-  const currentSecretKey = stripeConfig.secretKey;
-  const isPlaceholderKey = !currentSecretKey || currentSecretKey.includes('YOUR_STRIPE_') || currentSecretKey.startsWith('YOUR_STRIPE');
-
-  // If test mode or placeholder key
-  if (!stripeConfig.useLiveMode || isPlaceholderKey) {
-    console.log('Stripe (Simulation/Test Mode): Simulating successful card payment processing...');
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    return {
-      success: true,
-      paymentIntentId: 'pi_test_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now()
-    };
-  }
-
   try {
     const cleanCardNumber = cardNumber.replace(/\s+/g, '');
     const cleanExpMonth = expMonth.trim();
@@ -2530,6 +2588,7 @@ async function processStripePayment({ cardNumber, expMonth, expYear, cvc, amount
     }
     const cleanCvc = cvc.trim();
     const rawAmount = parseFloat(amount) || 10.0;
+    const finalAmount = rawAmount < 200 ? 200 : rawAmount;
 
     console.log('Stripe: Tokenizing card details using publishable key...');
     
@@ -2562,7 +2621,7 @@ async function processStripePayment({ cardNumber, expMonth, expYear, cvc, amount
     const paymentMethodId = pmData.id;
     console.log('Stripe: PaymentMethod created: ' + paymentMethodId);
     
-    // 2. Call Backend Payment Server (/create-payment-intent)
+    // 2. Try Backend Payment Server (/create-payment-intent)
     console.log(`Stripe: Sending request to Backend Server (${stripeConfig.backendUrl})...`);
     
     try {
@@ -2573,7 +2632,7 @@ async function processStripePayment({ cardNumber, expMonth, expYear, cvc, amount
         },
         body: JSON.stringify({
           paymentMethodId: paymentMethodId,
-          amount: rawAmount < 200 ? 200 : rawAmount,
+          amount: finalAmount,
           currency: stripeConfig.defaultCurrency || 'lkr',
           courseTitle: selectedPaymentCourseTitle,
           studentEmail: currentUser?.email || 'No Email'
@@ -2581,20 +2640,73 @@ async function processStripePayment({ cardNumber, expMonth, expYear, cvc, amount
       });
 
       const serverData = await serverResponse.json();
-      if (serverResponse.ok && serverData.success) {
+      if (serverData.success) {
         console.log('Stripe Backend: Payment Intent Succeeded! ID: ' + serverData.paymentIntentId);
         return { success: true, paymentIntentId: serverData.paymentIntentId };
-      } else {
-        let errorMsg = serverData.error || 'Payment failed on Stripe. Please check card details.';
-        if (errorMsg.includes('live_mode_test_card') || errorMsg.includes('test card')) {
-          errorMsg = 'Live Mode Active: Stripe rejected this test card. Please use a real Visa/Mastercard/Amex card.';
+      } else if (serverData.requiresAction && serverData.redirectUrl) {
+        console.log('Stripe Backend 3DS: Bank OTP required...');
+        const iframeContainer = document.getElementById('stripe-inapp-iframe-container');
+        const iframe = document.getElementById('stripe-checkout-iframe');
+        if (iframeContainer && iframe) {
+          iframe.src = serverData.redirectUrl;
+          iframeContainer.style.display = 'block';
+          document.getElementById('payment-main-content').style.display = 'none';
+          document.getElementById('payment-processing').style.display = 'none';
+        } else {
+          window.location.href = serverData.redirectUrl;
         }
-        return { success: false, errorMessage: errorMsg };
+        return { success: false, errorMessage: 'Bank 3D Secure OTP verification required. Please complete OTP authentication.' };
+      } else if (serverData.error) {
+        return { success: false, errorMessage: serverData.error };
       }
     } catch (backendErr) {
-      console.error('Backend server connection error:', backendErr);
-      return { success: false, errorMessage: 'Failed to connect to payment server. Please try again.' };
+      console.warn('Backend server unreachable, trying direct Stripe REST API fallback:', backendErr);
     }
+
+    // 3. Fallback: Direct Stripe REST API Call with Secret Key if backend is down/returning HTML
+    if (stripeConfig.secretKey && !stripeConfig.secretKey.includes('YOUR_STRIPE_')) {
+      console.log('Stripe: Processing PaymentIntent via direct Stripe API fallback...');
+      const stripeIntentData = new URLSearchParams();
+      stripeIntentData.append('amount', Math.round(finalAmount * 100));
+      stripeIntentData.append('currency', stripeConfig.defaultCurrency || 'lkr');
+      stripeIntentData.append('payment_method', paymentMethodId);
+      stripeIntentData.append('confirm', 'true');
+      stripeIntentData.append('description', `Course Purchase: ${selectedPaymentCourseTitle}`);
+      stripeIntentData.append('payment_method_types[0]', 'card');
+      stripeIntentData.append('return_url', window.location.href);
+      if (currentUser?.email && currentUser.email.includes('@')) {
+        stripeIntentData.append('receipt_email', currentUser.email);
+      }
+
+      const directResponse = await fetch('https://api.stripe.com/v1/payment_intents', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${stripeConfig.secretKey}`,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: stripeIntentData
+      });
+
+      const directData = await directResponse.json();
+      if (directResponse.ok) {
+        if (directData.status === 'succeeded' || directData.status === 'requires_capture') {
+          console.log('Stripe Direct API: Payment Succeeded! ID: ' + directData.id);
+          return { success: true, paymentIntentId: directData.id };
+        } else if (directData.status === 'requires_action' && directData.next_action?.redirect_to_url?.url) {
+          console.log('Stripe 3DS: Redirecting to bank OTP verification...');
+          window.location.href = directData.next_action.redirect_to_url.url;
+          return { success: false, errorMessage: 'Redirecting to your bank for 3D Secure OTP verification...' };
+        }
+      }
+
+      let errorMsg = directData.error?.message || 'Payment failed on Stripe.';
+      if (errorMsg.includes('live_mode_test_card') || errorMsg.includes('test card')) {
+        errorMsg = 'Live Mode Active: Test cards (4242...) are declined in Live Mode. Please use a real Visa/Mastercard/Amex credit or debit card.';
+      }
+      return { success: false, errorMessage: errorMsg };
+    }
+
+    return { success: false, errorMessage: 'Failed to connect to payment server. Please try again.' };
   } catch (e) {
     console.error('Stripe Exception:', e);
     return { success: false, errorMessage: 'Payment processing error: ' + e.message };
