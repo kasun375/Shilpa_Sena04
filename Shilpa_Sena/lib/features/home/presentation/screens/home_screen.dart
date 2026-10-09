@@ -615,7 +615,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, dbProvider, child) {
         final imgUrls = dbProvider.promoImageUrls;
         final List<String> banners = imgUrls.isEmpty
-            ? ['assets/images/promo_banner_1.png', 'assets/images/promo_banner_2.png']
+            ? ['assets/images/Comp.gif']
             : imgUrls;
 
         return CarouselSlider(

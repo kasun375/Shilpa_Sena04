@@ -455,7 +455,7 @@ a:hover { text-decoration: underline; }
 /* ── CARDS ────────────────────────────────────────────────── */
 .card {
   background: var(--gradient-card);
-  border-radius: 0px !important;
+  border-radius: var(--radius) !important;
   padding: 16px;
   margin-bottom: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -510,9 +510,10 @@ a:hover { text-decoration: underline; }
 }
 
 /* Full Course Card (Courses page) */
+.course-card,
 .course-card-full {
   background: var(--gradient-card);
-  border-radius: 0px !important;
+  border-radius: var(--radius) !important;
   padding: 22px;
   margin-bottom: 18px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
