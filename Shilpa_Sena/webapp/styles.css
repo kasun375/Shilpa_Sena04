@@ -120,9 +120,16 @@ a:hover { text-decoration: underline; }
 }
 
 .brand-logo-img {
-  height: 38px;
+  height: 52px;
+  max-height: calc(var(--nav-height) - 16px);
   width: auto;
   object-fit: contain;
+  transition: transform 0.25s var(--ease);
+  display: block;
+}
+
+.brand-logo-img:hover {
+  transform: scale(1.05);
 }
 
 .brand-name {
@@ -448,7 +455,7 @@ a:hover { text-decoration: underline; }
 /* ── CARDS ────────────────────────────────────────────────── */
 .card {
   background: var(--gradient-card);
-  border-radius: var(--radius);
+  border-radius: 0px !important;
   padding: 16px;
   margin-bottom: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -505,7 +512,7 @@ a:hover { text-decoration: underline; }
 /* Full Course Card (Courses page) */
 .course-card-full {
   background: var(--gradient-card);
-  border-radius: var(--radius);
+  border-radius: 0px !important;
   padding: 22px;
   margin-bottom: 18px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
@@ -1294,17 +1301,16 @@ a:hover { text-decoration: underline; }
 .footer-brand .footer-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 .footer-logo img {
-  height: 36px;
+  height: 85px;
   width: auto;
+  object-fit: contain;
+  transition: transform 0.25s var(--ease);
 }
-.footer-logo span {
-  font-family: var(--font-brand);
-  font-size: 26px;
-  color: #fff;
+.footer-logo img:hover {
+  transform: scale(1.05);
 }
 .footer-desc {
   color: rgba(255, 255, 255, 0.6);
@@ -3320,6 +3326,289 @@ a:hover { text-decoration: underline; }
   .payment-card .input-row .input-icon {
     left: 6px !important;
     font-size: 15px !important;
+  }
+}
+
+/* ── COMPREHENSIVE BOOTSTRAP & MOBILE RESPONSIVE SYSTEM ────────────────── */
+@media (max-width: 992px) {
+  #app-content {
+    padding: 20px 16px;
+  }
+
+  .nav-container {
+    padding: 0 20px;
+  }
+
+  .admin-main-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-header-actions {
+    width: 100%;
+  }
+
+  .admin-header-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Navigation & Mobile Hamburger Menu Drawer */
+  .hamburger {
+    display: flex !important;
+  }
+
+  .nav-brand {
+    gap: 8px;
+  }
+
+  .brand-logo-img {
+    height: 42px !important;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    background: rgba(0, 27, 61, 0.98);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    gap: 8px;
+    border-bottom: 1px solid rgba(0, 210, 255, 0.15);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    display: none;
+    max-height: calc(100vh - var(--nav-height));
+    overflow-y: auto;
+  }
+
+  .nav-links.open {
+    display: flex !important;
+    animation: slideDownNav 0.25s var(--ease) forwards;
+  }
+
+  @keyframes slideDownNav {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .nav-link {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 15px;
+    width: 100%;
+  }
+
+  .nav-actions {
+    gap: 8px;
+  }
+
+  .btn-login-nav, .btn-logout-nav {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  /* Home & Student Screens */
+  .welcome-banner h2 {
+    font-size: 22px;
+  }
+
+  .welcome-banner p {
+    font-size: 14px;
+  }
+
+  .search-container {
+    padding: 0;
+  }
+
+  .hero-section {
+    flex-direction: column;
+  }
+
+  .hero-section .carousel-container {
+    width: 100%;
+  }
+
+  .carousel-slide {
+    aspect-ratio: 16/9;
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .resource-card {
+    min-height: 160px;
+    padding: 14px;
+  }
+
+  .resource-card h4 {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  .resource-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .resource-icon .material-icons-outlined {
+    font-size: 24px;
+  }
+
+  .course-card-full {
+    padding: 16px;
+  }
+
+  .course-card-header h3 {
+    font-size: 17px;
+  }
+
+  .course-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .course-actions button {
+    width: 100%;
+  }
+
+  /* Admin Dashboard Mobile Responsiveness */
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .stat-icon {
+    font-size: 26px !important;
+    padding: 8px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .admin-tabs-nav, .notifications-tabs-nav {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    gap: 6px;
+    flex-wrap: nowrap !important;
+  }
+
+  .admin-tabs-nav::-webkit-scrollbar, .notifications-tabs-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .admin-tabs-nav .tab-btn, .notifications-tabs-nav .tab-btn {
+    flex: 0 0 auto;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .admin-card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .admin-card-header h3 {
+    font-size: 16px;
+  }
+
+  /* Admin Requests List */
+  .request-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .request-card-info {
+    gap: 10px;
+  }
+
+  .request-card-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .request-card-actions .action-btn {
+    flex: 1;
+    height: 38px;
+  }
+
+  /* Admin Responsive Tables */
+  .students-table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+  }
+
+  .students-table {
+    min-width: 450px;
+  }
+
+  /* Info Pages */
+  .info-page {
+    padding: 10px 0;
+  }
+
+  .info-page h1 {
+    font-size: 24px;
+  }
+
+  .info-page h2 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  #top-nav {
+    height: 62px;
+  }
+
+  :root {
+    --nav-height: 62px;
+  }
+
+  .brand-logo-img {
+    height: 36px !important;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .banner-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
   }
 }
 

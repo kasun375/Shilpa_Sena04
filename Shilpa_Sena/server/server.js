@@ -217,9 +217,9 @@ const server = app.listen(PORT, () => {
   console.log(`=======================================================`);
 
   // Auto-open browser when server starts listening
-  const startCmd = process.platform === 'win32' ? `start ${url}` :
-                   process.platform === 'darwin' ? `open ${url}` :
-                   `xdg-open ${url}`;
+  const startCmd = process.platform === 'win32' ? `start "" "${url}"` :
+                   process.platform === 'darwin' ? `open "${url}"` :
+                   `xdg-open "${url}"`;
   exec(startCmd, (err) => {
     if (err) console.log(`Please open ${url} manually in your browser.`);
   });
@@ -229,9 +229,9 @@ server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
     console.log(`⚠️ Port ${PORT} is already in use. Opening http://localhost:${PORT}...`);
     const url = `http://localhost:${PORT}`;
-    const startCmd = process.platform === 'win32' ? `start ${url}` :
-                     process.platform === 'darwin' ? `open ${url}` :
-                     `xdg-open ${url}`;
+    const startCmd = process.platform === 'win32' ? `start "" "${url}"` :
+                     process.platform === 'darwin' ? `open "${url}"` :
+                     `xdg-open "${url}"`;
     exec(startCmd);
   } else {
     console.error('Server error:', err);

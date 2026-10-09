@@ -704,7 +704,6 @@ function renderHome() {
       <div>
         ${courses.map(c => `
           <div class="card card-row" onclick="window.location.hash='#courses'">
-            <div class="card-icon"><span class="material-icons-outlined">school</span></div>
             <div class="card-info">
               <h4>${c.title}</h4>
               <p>${c.date}, ${c.time} &bull; Rs. ${parseFloat(c.price || 10.0).toFixed(2)}</p>
